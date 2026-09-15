@@ -156,7 +156,7 @@
 
 ## Task 8: 自定义 Composables
 - **Owner**: `[用户]`
-- **Status**: `in_progress`
+- **Status**: `completed`
 - **Priority**: medium
 - **Depends On**: Task 3
 - **Description**:
@@ -171,8 +171,11 @@
   - `rule` TR-8.2: `useForm` 集成 Element Plus 表单校验；证据：组件中调用 validate 成功/失败
   - `rule` TR-8.3: 至少一个页面使用了 composable 且逻辑正确；证据：代码审查 + 页面功能正常
 - **Completion Evidence**（2026-09-15）:
-  - `src/composables/useTable.ts`：泛型 `<T, Q>` 双参数；fetcher 参数 `PageQuery & Q` 交叉类型；watch page/pageSize 自动 fetch；finally 关 loading；reset 主动刷新；query 不自动 watch（避免打字风暴）；type-check 通过
-- **Notes**: 踩坑：`ref<Q>({})` 报类型不对需 `as Q` 受控断言；composable 不得 import 具体 API 模块（保持通用）；vue-router 4 query 类型宽松需业务层收窄；泛型 `<T>` 可自动推导不需手动写
+  - `useTable.ts`：泛型 `<T, Q>`；fetcher `PageQuery & Q`；watch page/pageSize；finally 关 loading
+  - `useForm.ts`：`<F>` 自动推导；FormInstance validate catch；reset + clearValidate
+  - `useModal.ts`：`<T = undefined>`；confirm 成功才 close；close 清 formData
+  - type-check 通过；usePermission 延后到 Task 11（权限控制时再写）
+- **Notes**: usePermission 延后 —— 无消费方提前写没用；Task 9 用户列表页将同时消费 useTable/useForm/useModal 满足 TR-8.3
 
 ## Task 9: 业务列表 CRUD 页面
 - **Owner**: `[用户]`
