@@ -1,0 +1,30 @@
+@import './base.css';
+
+/* 布局系统高度链：el-container 撑满视口的前提 */
+html,
+body,
+#app {
+  height: 100%;
+}
+
+#app {
+  width: 100%;
+  /* max-width: 1280px; */
+  /* margin: 0 auto; */
+  padding: 0;
+  font-weight: normal;
+}
+
+a,
+.green {
+  text-decoration: none;
+  color: hsla(160, 100%, 37%, 1);
+  transition: 0.4s;
+  padding: 3px;
+}
+
+@media (hover: hover) {
+  a:hover {
+    background-color: hsla(160, 100%, 37%, 0.2);
+  }
+}

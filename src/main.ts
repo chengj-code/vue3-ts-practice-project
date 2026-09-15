@@ -1,0 +1,20 @@
+import './assets/main.css'
+// 函数式组件不会被 unplugin-vue-components 捕获，需手动引入样式
+import 'element-plus/es/components/message/style/css'
+import 'element-plus/es/components/message-box/style/css'
+import 'element-plus/es/components/notification/style/css'
+import 'element-plus/es/components/loading/style/css'
+
+import { createApp } from 'vue'
+import { createPinia } from 'pinia'
+import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
+
+import App from './App.vue'
+import router from './router'
+
+const app = createApp(App)
+
+app.use(createPinia().use(piniaPluginPersistedstate))
+app.use(router)
+
+app.mount('#app')
