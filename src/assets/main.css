@@ -28,3 +28,95 @@ a,
     background-color: hsla(160, 100%, 37%, 0.2);
   }
 }
+
+/* ============================================================
+   暗夜控制台主题层（Element Plus 暗色变量 + 翡翠绿品牌覆盖）
+   依赖 main.ts 中先引入的 element-plus/theme-chalk/dark/css-vars.css
+   T18 做明暗切换时：切换 <html> 的 dark class 即可，浅色走 EP 默认
+   ============================================================ */
+:root {
+  --console-bg: #0a0f15;
+  --console-surface: #0f151c;
+  --console-surface-2: #131b24;
+  --console-line: #1e2730;
+  --console-line-strong: #2b3540;
+  --console-accent: #34d399;
+  --console-accent-bright: #5eead4;
+  --console-accent-deep: #052018;
+  --console-text-1: #e6edf3;
+  --console-text-2: #93a1b3;
+  --console-text-3: #5d6b7c;
+  --font-display: 'Chakra Petch', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Cascadia Code', Consolas, monospace;
+  --font-body: 'PingFang SC', 'Microsoft YaHei', 'Segoe UI', sans-serif;
+}
+
+html.dark {
+  color-scheme: dark;
+
+  /* 面板/底色/文本/边框：深黑蓝灰体系 */
+  --el-bg-color: #0f151c;
+  --el-bg-color-page: #0a0f15;
+  --el-bg-color-overlay: #131b24;
+  --el-fill-color-blank: #0f151c;
+  --el-text-color-primary: #e6edf3;
+  --el-text-color-regular: #aab8c6;
+  --el-border-color: #28313c;
+  --el-border-color-light: #1f2731;
+  --el-border-color-lighter: #1b222b;
+  --el-border-color-extra-light: #171d25;
+  --el-border-color-dark: #313c48;
+  --el-fill-color: rgba(255, 255, 255, 0.045);
+  --el-fill-color-light: rgba(255, 255, 255, 0.03);
+  --el-fill-color-lighter: rgba(255, 255, 255, 0.022);
+  --el-mask-color: rgba(3, 6, 10, 0.72);
+  --el-card-bg-color: #0f151c;
+  --el-card-border-color: #1e2730;
+
+  /* 品牌翡翠绿色阶（替代 EP 默认蓝；light-N 为向深底混合，dark-2 为提亮态） */
+  --el-color-primary: #34d399;
+  --el-color-primary-light-3: #2a9d74;
+  --el-color-primary-light-5: #21755a;
+  --el-color-primary-light-7: #1a4e41;
+  --el-color-primary-light-8: #163b34;
+  --el-color-primary-light-9: #122726;
+  --el-color-primary-dark-2: #5eead4;
+}
+
+/* 全局正文字体（覆盖 base.css 的 Inter 栈） */
+body {
+  font-family: var(--font-body);
+}
+
+html.dark body {
+  background-color: var(--console-bg);
+}
+
+/* 实心主按钮/分页选中：亮翡翠底必须配深色文字，白字对比不足 */
+/* :not(.is-link/.is-text) 必须加：否则特异度盖过 EP 链接按钮规则，表格链接文字会变黑不可见 */
+html.dark .el-button--primary:not(.is-link):not(.is-text),
+html.dark .el-button--primary:not(.is-link):not(.is-text):hover,
+html.dark .el-button--primary:not(.is-link):not(.is-text):focus,
+html.dark .el-pagination.is-background .el-pager li.is-active {
+  color: var(--console-accent-deep);
+}
+
+/* 暗色滚动条 */
+html.dark ::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+html.dark ::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+html.dark ::-webkit-scrollbar-thumb {
+  background: #28313c;
+  border: 2px solid var(--console-bg);
+  border-radius: 8px;
+}
+
+html.dark ::-webkit-scrollbar-thumb:hover {
+  background: #3a4653;
+}

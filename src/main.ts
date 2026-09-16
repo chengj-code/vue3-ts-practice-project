@@ -1,3 +1,5 @@
+// Element Plus 官方暗色模式：配合 <html class="dark"> 生效（须早于 main.css，品牌色覆盖在 main.css）
+import 'element-plus/theme-chalk/dark/css-vars.css'
 import './assets/main.css'
 // 函数式组件不会被 unplugin-vue-components 捕获，需手动引入样式
 import 'element-plus/es/components/message/style/css'

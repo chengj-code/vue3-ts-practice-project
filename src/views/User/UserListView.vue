@@ -1,7 +1,13 @@
 <template>
   <div class="user-list">
+    <!-- 页头：控制台风格的模块标识 -->
+    <div class="page-head">
+      <p class="page-eyebrow">SYSTEM // USER MANAGEMENT</p>
+      <h2 class="page-title">用户管理</h2>
+    </div>
+
     <!-- 查询表单 -->
-    <el-card class="search-card">
+    <el-card class="console-card search-card">
       <el-form :inline="true" :model="query" class="search-form">
         <el-form-item label="姓名">
           <el-input v-model="query.name" placeholder="请输入姓名" @keyup.enter="handleSearch" clearable
@@ -15,16 +21,19 @@
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="handleSearch">查询</el-button>
-          <el-button @click="handleReset">重置</el-button>
+          <el-button class="btn-reset" @click="handleReset">重置</el-button>
         </el-form-item>
       </el-form>
     </el-card>
 
     <!-- 操作栏 + 表格 -->
-    <el-card class="table-card">
+    <el-card class="console-card table-card">
       <template #header>
         <div class="table-header">
-          <span>用户列表</span>
+          <div class="table-title">
+            <i class="title-bar" />
+            用户列表
+          </div>
           <el-button type="primary" @click="handleAdd">新增用户</el-button>
         </div>
       </template>
@@ -37,7 +46,7 @@
         <el-table-column prop="phone" label="手机号" width="140" />
         <el-table-column label="状态" width="100" align="center">
           <template #default="{ row }">
-            <el-tag :type="row.status ? 'success' : 'danger'" effect="light">
+            <el-tag :type="row.status ? 'success' : 'danger'" effect="plain">
               {{ row.status ? '启用' : '禁用' }}
             </el-tag>
           </template>
@@ -58,8 +67,8 @@
       </div>
     </el-card>
 
-    <!-- 新增/编辑弹窗 -->
-    <el-dialog v-model="dialogVisible" :title="dialogTitle" width="480px" destroy-on-close>
+    <!-- 新增/编辑弹窗（console-dialog 为 teleport 到 body 后的全局命名空间样式） -->
+    <el-dialog v-model="dialogVisible" :title="dialogTitle" width="480px" destroy-on-close class="console-dialog">
       <el-form :model="form" :rules="formRules" ref="formRef" label-width="80px">
         <el-form-item label="姓名" prop="name">
           <el-input v-model="form.name" placeholder="请输入姓名" />
@@ -219,23 +228,160 @@ const handleSubmit = async () => {
   gap: 16px;
 }
 
+/* ============ 页头 ============ */
+.page-head {
+  padding: 2px 2px 4px;
+}
+
+.page-eyebrow {
+  margin: 0 0 6px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.26em;
+  color: var(--console-accent);
+}
+
+.page-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--console-text-1);
+}
+
+/* ============ 卡片 ============ */
+.console-card {
+  border-radius: 12px;
+
+  :deep(.el-card__header) {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--console-line);
+  }
+
+  :deep(.el-card__body) {
+    padding: 20px;
+  }
+}
+
 .search-card {
   :deep(.el-form-item) {
     margin-bottom: 0;
   }
 }
 
-.table-card {
-  .table-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+.btn-reset {
+  --el-button-text-color: var(--console-text-2);
+  --el-button-bg-color: rgba(255, 255, 255, 0.03);
+  --el-button-border-color: var(--console-line-strong);
+
+  &:hover {
+    --el-button-text-color: var(--console-text-1);
+    --el-button-bg-color: rgba(255, 255, 255, 0.06);
+    --el-button-border-color: #3a4653;
   }
 }
 
+/* ============ 表格卡头 ============ */
+.table-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.table-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--console-text-1);
+}
+
+.title-bar {
+  width: 3px;
+  height: 14px;
+  background: var(--console-accent);
+  border-radius: 2px;
+  box-shadow: 0 0 8px rgba(52, 211, 153, 0.7);
+}
+
+/* ============ 表格 ============ */
+.table-card {
+  :deep(.el-table) {
+    /* 透明底，让卡片底色透出；表头/hover/边框单独定制 */
+    --el-table-bg-color: transparent;
+    --el-table-tr-bg-color: transparent;
+    --el-table-header-bg-color: #111a23;
+    --el-table-header-text-color: var(--console-text-2);
+    --el-table-border-color: var(--console-line);
+    --el-table-row-hover-bg-color: rgba(52, 211, 153, 0.06);
+    --el-table-fixed-box-shadow: -8px 0 12px -8px rgba(0, 0, 0, 0.6);
+
+    font-size: 13px;
+  }
+
+  :deep(.el-table__header-wrapper) {
+    font-family: var(--font-body);
+  }
+
+  :deep(th.el-table__cell) {
+    font-weight: 600;
+    letter-spacing: 0.04em;
+  }
+
+  /* 斑马纹：暗色下只提亮一点点 */
+  :deep(.el-table--striped .el-table__body tr.el-table__row--striped td.el-table__cell) {
+    background: rgba(255, 255, 255, 0.018);
+  }
+
+  :deep(.el-table__inner-wrapper::before) {
+    background-color: var(--console-line);
+  }
+}
+
+/* ============ 分页 ============ */
 .pagination-wrapper {
   display: flex;
   justify-content: flex-end;
-  margin-top: 16px;
+  margin-top: 18px;
+}
+</style>
+
+<!-- 弹窗 teleport 到 body，scoped 选择器够不到，用命名空间全局样式 -->
+<style lang="scss">
+.console-dialog {
+  padding: 4px;
+  background: #131b24;
+  border: 1px solid #1e2730;
+  border-radius: 14px;
+  box-shadow: 0 32px 80px -24px rgba(0, 0, 0, 0.85);
+
+  .el-dialog__header {
+    margin-right: 0;
+    padding: 18px 22px;
+    border-bottom: 1px solid #1e2730;
+  }
+
+  .el-dialog__title {
+    font-family: var(--font-display);
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+  }
+
+  .el-dialog__headerbtn {
+    top: 16px;
+  }
+
+  .el-dialog__body {
+    padding: 24px 22px 8px;
+  }
+
+  .el-dialog__footer {
+    padding: 12px 22px 20px;
+  }
 }
 </style>
