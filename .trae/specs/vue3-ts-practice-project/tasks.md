@@ -129,7 +129,7 @@
   - `rule` TR-6.3: 刷新页面后保持登录态；证据：刷新后仍在首页
   - `rule` TR-6.4: 登出后再次访问受保护路由被拦截；证据：跳转回登录页
 - **Completion Evidence**（2026-09-15）:
-  - `src/views/Login/LoginView.vue`：el-form + 校验（必填 + 密码 ≥ 6 位 validator）+ submitForm（validate → loginApi → setToken/setUserInfo → ElMessage.success → router.replace(redirect)）；redirect 从 `route.query.redirect as string ?? '/'` 取；样式：flex 居中 + 白色卡片（380px/圆角 8px/轻阴影）
+  - `src/views/Login/LoginView.vue`：el-form + 校验（必填 + 密码 ≥ 6 位）+ submitForm（validate → loginApi → setToken/setUserInfo → ElMessage.success → router.replace(redirect)）；redirect 从 `route.query.redirect as string ?? '/'` 取；样式：flex 居中 + 白色卡片（380px/圆角 8px/轻阴影）；**2026-09-16 重构为 useForm 消费**（form/formRef/loading/submit 全部对齐 useForm；rules 用 FormRules 类型；password 规则拆两条；TR-8.2 验证通过）
   - `src/router/index.ts`：顶层 `/login` 路由（requiresAuth: false）；`beforeEach` 守卫采用 vue-router 4 函数式写法（return true / return { path, query }），白名单走 meta.requiresAuth === false，已登录访问登录页踢回首页，无 token 时 `to.fullPath` 作 redirect 值；request.ts 拦截器 401 跳转与 DefaultLayout 登出按钮依赖的路由就绪
   - TR-6.1/6.2/6.3/6.4 浏览器走查通过
 - **Notes**: 踩坑：validate 失败会 reject，需 try-catch 吞掉；request.ts 拦截器已弹 ElMessage，LoginView catch 静默吞异常防 unhandled rejection；redirect 用 path 匹配而非 name（`name: '/login'` 会匹配不到，name 是 'login'）；RouteMeta 自定义字段声明合并未建，模板用 `as string` 断言兜底
@@ -179,7 +179,7 @@
 
 ## Task 9: 业务列表 CRUD 页面
 - **Owner**: `[用户]`
-- **Status**: `in_progress`
+- **Status**: `completed`
 - **Priority**: high
 - **Depends On**: Task 5, Task 8
 - **Description**:
@@ -193,16 +193,19 @@
   - `rule` TR-9.2: 新增弹窗提交后列表刷新；证据：列表新增一条数据
   - `rule` TR-9.3: 编辑后数据更新；证据：列表数据变化
   - `rule` TR-9.4: 删除确认后数据移除；证据：列表减少一条
-- **Completion Evidence**（2026-09-16 骨架完成）:
-  - mock/list.ts：加 name + status 筛选逻辑（query 参数显式布尔转换）
-  - UserListView.vue：查询表单 + 表格 + 分页 + 弹窗骨架全部画好
-  - useTable 消费：`<UserItem, { name?: string; status?: string }>` 显式传 Q；模板直接绑 query
-  - useModal 消费：dialogFormData + dialogForm 双状态 + watch 同步；onConfirm 区分新增/编辑
-  - 待完成：handleDelete 实现 + 删除边界处理 + 验收走查
+- **Completion Evidence**（2026-09-16）:
+  - mock/list.ts：加 name + status 筛选逻辑（query 参数显式布尔转换），新增/编辑/删除 CRUD 完整
+  - UserListView.vue：查询表单 + 表格 + 分页 + 弹窗，完整 CRUD（新增/编辑/删除）
+  - useTable 消费：`<UserItem, { name?: string; status?: string }>` 显式传 Q；模板直接绑 query；handleSearch 只设 page.value=1（靠 watch 自动 fetch）
+  - useModal 消费：dialogFormData + watch 打开时同步；onConfirm 区分新增/编辑（API + ElMessage + fetch）
+  - useForm 消费：el-form :model / ref / :loading 全部对齐 useForm 返回值；API 逻辑收在 useModal.onConfirm，useForm.onSubmit 空实现；异步校验器（用户名查重）
+  - useForm 泛型约束调整：`Record<string, unknown>` → `object`（interface 无索引签名）
+  - TR-9.1/9.2/9.3/9.4 + TR-10.1/10.2/10.3 浏览器走查通过
+  - type-check 通过
 
 ## Task 10: 表单校验页面
 - **Owner**: `[用户]`
-- **Status**: `pending`
+- **Status**: `completed`
 - **Priority**: medium
 - **Depends On**: Task 8, Task 9
 - **Description**:
@@ -214,6 +217,12 @@
   - `rule` TR-10.1: 提交空表单显示必填错误；证据：页面错误提示
   - `rule` TR-10.2: 非法手机号/邮箱显示格式错误；证据：校验提示
   - `rule` TR-10.3: 合法数据校验通过并发起请求；证据：接口被调用
+- **Completion Evidence**（2026-09-16）:
+  - UserListView：表单校验（必填 + 邮箱格式 + 手机号正则 + 异步用户名查重），rules 内联 validator 自动推断类型
+  - LoginView：用 useForm 重写（消费方 2，验证 composable 通用性），password 规则拆两条（required 管必填、validator 管长度），FormRules 类型标注让参数自动推断
+  - mock 查重路由：GET /api/user/check?name=xxx（避免 POST /api/user 和新增路由冲突）
+  - 异步 validator 规范：统一用 callback（校验失败 callback(new Error)、空值/异常 callback() 兜底）
+  - TR-10.1/10.2/10.3 浏览器走查通过；type-check 通过
 
 ## Task 11: 权限控制
 - **Owner**: `[用户]`

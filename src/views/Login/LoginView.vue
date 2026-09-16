@@ -10,59 +10,64 @@
                     <el-input v-model="form.password" type="password" placeholder="请输入密码" show-password />
                 </el-form-item>
                 <el-form-item>
-                    <el-button type="primary" class="login-btn" @click="submitForm">登录</el-button>
+                    <el-button type="primary" class="login-btn" :loading="loading" @click="submit">登录</el-button>
                 </el-form-item>
             </el-form>
         </div>
     </div>
 </template>
 <script setup lang="ts">
-import { ref } from 'vue';
-import type { ElForm } from 'element-plus';
 import router from '@/router';
 import { useUserStore } from '@/stores/user';
-import { loginApi } from '@/api/modules/user';
-type ElFormInstance = InstanceType<typeof ElForm>;
-const formRef = ref<ElFormInstance | null>(null);
-const form = ref({
+import { loginApi, type LoginParams } from '@/api/modules/user';
+import { useForm } from '@/composables/useForm';
+import type { FormItemRule, FormRules } from 'element-plus';
+const defaultFormData = {
     username: 'admin',
     password: '123456'
-});
+}
 const userStore = useUserStore();
 const route = useRoute();
 const redirect = (route.query.redirect as string) ?? '/';
 
-const checkPasswordValidator = (rule: any, value: any, callback: any) => {
-    if (!value) {
-        return callback(new Error('请输入密码'));
-    } else if (value.length < 6) {
-        return callback(new Error('密码长度不能小于6位'));
-    } else {
-        return callback();
-    }
-}
-
-const rules = ref({
+// type FormItemRuleValidator = (rule: FormItemRule, value: unknown, callback: (error?: string | Error) => void) => void | Promise<void>
+// const checkPasswordValidator = (rule, value, callback) => {
+//     if (!value) {
+//         return callback(new Error('请输入密码'));
+//     } else if (String(value).length < 6) {
+//         return callback(new Error('密码长度不能小于6位'));
+//     } else {
+//         return callback();
+//     }
+// }
+const rules: FormRules = {
     username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
-    password: [{ validator: checkPasswordValidator, trigger: 'blur' }]
-});
-
-const submitForm = async () => {
-    try {
-        await formRef.value?.validate()
-    } catch {
-        return;
-    }
-    try {
-        const res = await loginApi(form.value);
-        userStore.setToken(res.token);
-        userStore.setUserInfo(res.userInfo);
-        ElMessage.success('登录成功');
-        router.replace(redirect);
-    } catch {
-        // request.ts 拦截器已弹 ElMessage，这里只吞异常防 unhandled rejection
-    }
+    password: [
+        { required: true, message: '请输入密码', trigger: 'blur' },
+        {
+            validator: (_rule, value, callback) => {
+                if (String(value).length < 6) {
+                    return callback(new Error('密码长度不能小于6位'));
+                } else {
+                    return callback();
+                }
+            },
+            trigger: 'blur'
+        }]
 }
+const { form, formRef, submit, loading } = useForm<LoginParams>({
+    initialData: { ...defaultFormData },
+    onSubmit: async (data) => {
+        try {
+            const res = await loginApi(data);
+            userStore.setToken(res.token);
+            userStore.setUserInfo(res.userInfo);
+            ElMessage.success('登录成功');
+            router.replace(redirect);
+        } catch {
+        }
+    }
+})
 </script>
 
 <style scoped lang="scss">
