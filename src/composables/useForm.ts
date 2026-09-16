@@ -1,7 +1,7 @@
 import { ref } from 'vue'
 import type { FormInstance } from 'element-plus'
 
-export function useForm<F extends Record<string, unknown>>(options: {
+export function useForm<F extends object>(options: {
     initialData: F,
     onSubmit: (data: F) => Promise<void>
 }) {

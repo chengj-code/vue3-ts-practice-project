@@ -29,7 +29,7 @@
         </div>
       </template>
 
-      <el-table :data="list" v-loading="loading" border stripe>
+      <el-table :data="list" v-loading="listLoading" border stripe>
         <el-table-column prop="id" label="ID" width="80" align="center" />
         <el-table-column prop="name" label="姓名" width="120" />
         <el-table-column prop="age" label="年龄" width="80" align="center" />
@@ -60,80 +60,109 @@
 
     <!-- 新增/编辑弹窗 -->
     <el-dialog v-model="dialogVisible" :title="dialogTitle" width="480px" destroy-on-close>
-      <el-form :model="dialogForm" :rules="formRules" ref="formRef" label-width="80px">
+      <el-form :model="form" :rules="formRules" ref="formRef" label-width="80px">
         <el-form-item label="姓名" prop="name">
-          <el-input v-model="dialogForm.name" placeholder="请输入姓名" />
+          <el-input v-model="form.name" placeholder="请输入姓名" />
         </el-form-item>
         <el-form-item label="年龄" prop="age">
-          <el-input-number v-model="dialogForm.age" :min="1" :max="120" />
+          <el-input-number v-model="form.age" :min="1" :max="120" />
         </el-form-item>
         <el-form-item label="邮箱" prop="email">
-          <el-input v-model="dialogForm.email" placeholder="请输入邮箱" />
+          <el-input v-model="form.email" placeholder="请输入邮箱" />
         </el-form-item>
         <el-form-item label="手机号" prop="phone">
-          <el-input v-model="dialogForm.phone" placeholder="请输入手机号" />
+          <el-input v-model="form.phone" placeholder="请输入手机号" />
         </el-form-item>
         <el-form-item label="状态" prop="status">
-          <el-switch v-model="dialogForm.status" active-text="启用" inactive-text="禁用" />
+          <el-switch v-model="form.status" active-text="启用" inactive-text="禁用" />
         </el-form-item>
       </el-form>
       <template #footer>
         <el-button @click="close">取消</el-button>
-        <el-button type="primary" :loading="submitLoading" @click="handleSubmit">确定</el-button>
+        <el-button type="primary" :loading="loading" @click="handleSubmit">确定</el-button>
       </template>
     </el-dialog>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
-import { addUserApi, deleteUserApi, getUserListApi, updateUserApi, type UserItem } from '@/api/modules/list'
+import { ElMessage, ElMessageBox, type FormRules } from 'element-plus'
+import { addUserApi, deleteUserApi, getUserByNameApi, getUserListApi, updateUserApi, type UserItem } from '@/api/modules/list'
 import { useTable } from '@/composables/useTable'
 import { useModal } from '@/composables/useModal'
+import { useForm } from '@/composables/useForm'
 
 // ========== 查询表单 ==========
 
-const { query, fetch, reset, list, loading, total, page, pageSize } = useTable<UserItem, { name?: string; status?: string }>(
-  (params) => {
-    return getUserListApi(params)
-  },
-  {
-    immediate: true,
-  }
+const { query, fetch, reset, list, loading: listLoading, total, page, pageSize } = useTable<UserItem, { name?: string; status?: string }>(
+  getUserListApi,
+  { immediate: true }
 )
 
+// ========== 弹窗表单（useForm 管校验 + loading + 表单数据） ==========
+
+interface DialogForm {
+  id: number
+  name: string
+  age: number
+  email: string
+  phone: string
+  status: boolean
+  createTime: string
+}
+
+const defaultDialogForm: DialogForm = {
+  id: 0, name: '', age: 18, email: '', phone: '', status: true, createTime: '',
+}
+
+const { form, formRef, loading, submit: submitForm } = useForm<DialogForm>({
+  initialData: { ...defaultDialogForm },
+  onSubmit: async () => {
+    // API 逻辑全在 useModal.onConfirm，这里空实现
+  },
+})
+
+// ========== 弹窗开关（useModal 管开关 + API 调用） ==========
+
 const { visible: dialogVisible, formData: dialogFormData, open, close, confirm } = useModal<UserItem>({
-  onConfirm: async (data) => {
+  onConfirm: async () => {
     if (dialogFormData.value?.id) {
-      await updateUserApi(dialogFormData.value?.id, dialogForm);
+      await updateUserApi(dialogFormData.value.id, form.value)
       ElMessage.success('更新成功')
     } else {
-      await addUserApi(dialogForm);
+      await addUserApi(form.value)
       ElMessage.success('新增成功')
     }
     fetch()
-  }
+  },
 })
 
-// ========== 弹窗 ==========
-// dialogForm 里加 createTime 字段（默认空字符串）
-const dialogForm = reactive({
-  id: 0,
-  name: '',
-  age: 18,
-  email: '',
-  phone: '',
-  status: true,
-  createTime: '',  // ← 补上，新增时 mock 会替换，编辑时从 row 带过来
-})
-const submitLoading = ref(false)
 const isEdit = computed(() => !!dialogFormData.value?.id)
-const formRef = ref<FormInstance | null>(null)
-
 const dialogTitle = computed(() => (isEdit.value ? '编辑用户' : '新增用户'))
 
+// ========== 校验规则 ==========
+
 const formRules: FormRules = {
-  name: [{ required: true, message: '请输入姓名', trigger: 'blur' }],
+  name: [
+    { required: true, message: '请输入姓名', trigger: 'blur' },
+    {
+      trigger: 'blur',
+      validator: async (_rule, value, callback) => {
+        if (!value) return callback()  // 空值由 required 规则拦截
+        if (isEdit.value) return callback()  // 编辑跳过
+        try {
+          const user = await getUserByNameApi(value)
+          if (user) {
+            callback(new Error('该姓名已存在'))
+          } else {
+            callback()
+          }
+        } catch {
+          callback()  // mock 接口异常时不阻塞提交
+        }
+      },
+    },
+  ],
   age: [{ required: true, message: '请输入年龄', trigger: 'blur' }],
   email: [
     { required: true, message: '请输入邮箱', trigger: 'blur' },
@@ -145,32 +174,22 @@ const formRules: FormRules = {
   ],
 }
 
-const handleSearch = () => {
-  page.value = 1;
-}
+// ========== 弹窗打开时同步表单数据 ==========
 
-const handleReset = () => {
-  reset();
-}
-// 推荐：加一个 watch，弹窗打开时自动同步 dialogForm
 watch(dialogVisible, (visible) => {
   if (!visible) return
-  // dialogFormData.value 来自 useModal.open(row)
-  // - 新增时：undefined → 用默认值
-  // - 编辑时：UserItem → 直接赋值
-  Object.assign(dialogForm, dialogFormData.value ?? {
-    id: 0, name: '', age: 18, email: '', phone: '', status: true, createTime: '',
-  })
+  Object.assign(form.value, dialogFormData.value ?? { ...defaultDialogForm })
 })
 
-const handleAdd = () => {
-  open();
-}
+// ========== 事件处理 ==========
 
-const handleEdit = (row: UserItem) => {
-  open(row)
-}
+const handleSearch = () => { page.value = 1 }
 
+const handleReset = () => { reset() }
+
+const handleAdd = () => { open() }
+
+const handleEdit = (row: UserItem) => { open(row) }
 
 const handleDelete = async (row: UserItem) => {
   try {
@@ -188,16 +207,8 @@ const handleDelete = async (row: UserItem) => {
 }
 
 const handleSubmit = async () => {
-  if (!formRef.value) return
-  try {
-    await formRef.value.validate()
-    submitLoading.value = true
-    await confirm();
-  } catch {
-    // 校验失败
-  } finally {
-    submitLoading.value = false
-  }
+  await submitForm()  // useForm: validate → onSubmit(空) → loading 自动关
+  await confirm()     // useModal: onConfirm(调 API) → 成功后 close
 }
 </script>
 

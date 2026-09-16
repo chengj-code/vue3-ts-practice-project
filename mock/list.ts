@@ -1,10 +1,15 @@
 import type { MockMethod } from 'vite-plugin-mock'
 import { Mock, success } from './_utils'
 
+function formatDate(d: Date): string {
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`
+}
+
 // 生成模拟用户列表数据
 function generateList(count: number) {
-  return Array.from({ length: count }, (_, i) => ({
-    id: i + 1,
+  return Array.from({ length: count }, () => ({
+    id: Mock.mock('@increment'),
     name: Mock.mock('@cname'),
     age: Mock.mock('@integer(18, 60)'),
     email: Mock.mock('@email'),
@@ -62,17 +67,21 @@ export default [
       })
     },
   },
-  // 新增用户
+  // 新增用户（后端自动生成 createTime）
   {
     url: '/api/user',
     method: 'post',
-    response: ({ body }: { body: Omit<UserItem, 'id'> }) => {
-      const item: UserItem = { id: allList.length + 1, ...body }
+    response: ({ body }: { body: Omit<UserItem, 'id' | 'createTime'> }) => {
+      const item: UserItem = {
+        ...body,                              // body 可能带脏 id（如前端默认值 0），被后面覆盖
+        id: Mock.mock('@increment'),          // 后端生成，优先级最高
+        createTime: formatDate(new Date()),   // 后端生成
+      }
       allList.unshift(item)
       return success(item)
     },
   },
-  // 更新用户
+  // 更新用户（createTime 由后端保留，前端传了也忽略）
   {
     url: '/api/user/:id',
     method: 'put',
@@ -80,7 +89,8 @@ export default [
       const id = Number(url.split('/').pop())
       const idx = allList.findIndex((item) => item.id === id)
       if (idx > -1) {
-        allList[idx] = { ...allList[idx], ...body }
+        const { createTime, ...rest } = body  // 忽略前端传来的 createTime
+        allList[idx] = { ...allList[idx], ...rest }
         return success(allList[idx])
       }
       return success(null)
@@ -95,6 +105,17 @@ export default [
       const idx = allList.findIndex((item) => item.id === id)
       if (idx > -1) allList.splice(idx, 1)
       return success(null)
+    },
+  },
+  // 查重：按姓名查是否存在（异步校验器用）
+  {
+    url: '/api/user/check',
+    method: 'get',
+    response: ({ query }: { query: { name?: string } }) => {
+      const name = query.name?.trim()
+      if (!name) return success(null)
+      const found = allList.find((item) => item.name === name)
+      return success(found ?? null)
     },
   },
 ] as MockMethod[]

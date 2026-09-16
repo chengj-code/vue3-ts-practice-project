@@ -27,3 +27,7 @@ export function updateUserApi(id: number, data: Partial<UserItem>) {
 export function deleteUserApi(id: number) {
     return request.delete<null>(`/user/${id}`);
 }
+
+export function getUserByNameApi(name: string) {
+    return request.get<UserItem | null>('/user/check', { name });
+}
