@@ -59,6 +59,7 @@ import router from '@/router';
 import { useAppStore } from '@/stores/app';
 import { useUserStore } from '@/stores/user';
 import { ArrowDown, Expand, Fold, More, Odometer, SwitchButton, User } from '@element-plus/icons-vue';
+import { usePermission } from '@/composables/usePermission';
 
 const userStore = useUserStore();
 const appStore = useAppStore();
@@ -76,6 +77,7 @@ const onCommand = (command: string) => {
     router.replace('/login');
   }
 }
+
 </script>
 
 <style scoped lang="scss">

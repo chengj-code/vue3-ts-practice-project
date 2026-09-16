@@ -1,4 +1,5 @@
-import { useUserStore } from '@/stores/user';
+import { usePermission } from '@/composables/usePermission'
+import { useUserStore } from '@/stores/user'
 import { createRouter, createWebHistory } from 'vue-router'
 
 const router = createRouter({
@@ -8,7 +9,13 @@ const router = createRouter({
       path: '/login',
       name: 'login',
       component: () => import('@/views/Login/LoginView.vue'),
-      meta: { title: '登录', icon: 'User', requiresAuth: false },
+      meta: { title: '登录', requiresAuth: false },
+    },
+    {
+      path: '/403',
+      name: '403',
+      component: () => import('@/views/Error/ForbiddenView.vue'),
+      meta: { title: '403', requiresAuth: false },
     },
     {
       path: '/',
@@ -28,7 +35,7 @@ const router = createRouter({
           name: 'userList',
           // route level code-splitting: children 全部懒加载，访问时才拉取对应 chunk
           component: () => import('@/views/User/UserListView.vue'),
-          meta: { title: '用户列表', icon: 'User' },
+          meta: { title: '用户列表', icon: 'User', roles: ['admin'] },
         },
       ],
     },
@@ -48,7 +55,10 @@ router.beforeEach((to) => {
   if (!userStore.token) {
     return { path: '/login', query: { redirect: to.fullPath } }
   }
-
+  const { hasRole } = usePermission()
+  if (!hasRole(to.meta.roles)) {
+    return { path: '/403' }
+  }
   return true
 })
 export default router

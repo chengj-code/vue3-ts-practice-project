@@ -226,7 +226,7 @@
 
 ## Task 11: 权限控制
 - **Owner**: `[用户]`
-- **Status**: `pending`
+- **Status**: `in_progress`
 - **Priority**: medium
 - **Depends On**: Task 6
 - **Description**:
@@ -239,6 +239,12 @@
   - `rule` TR-11.1: 无权限用户访问受保护路由被重定向或提示无权限；证据：浏览器交互
   - `rule` TR-11.2: 无权限按钮被隐藏/禁用；证据：页面 DOM 检查
   - `rule` TR-11.3: 有权限用户可正常访问与操作；证据：功能正常
+- **Completion Evidence**（2026-09-16，进行中 3/6 步）:
+  - 类型层：env.d.ts 加 `export {}` 成模块文件，`declare module 'vue-router'` 增强 RouteMeta（title/icon/requiresAuth/roles）；ImportMetaEnv 改 declare global 包裹（否则静默退化为 any）；type-check 通过
+  - 判断层：src/composables/usePermission.ts 完成——isAdmin + hasAny（空入参不设限 / admin 短路 / some+includes 交集，顺序固定）+ hasRole/hasPermission，出口严格 boolean，userInfo=null 用 `?? []` 兜底
+  - 路由层：/user/list meta 配 `roles: ['admin']`（dashboard 故意不配验证不设限）；守卫在白名单/token 之后加第三层 hasRole 判断，不通过 return /403；/403 顶层路由 requiresAuth:false 防重定向死循环；ForbiddenView 用 el-result 全屏居中卡片
+  - 待做：v-permission 指令（directives/index.ts + main.ts 注册）、DefaultLayout 菜单过滤、UserListView 按钮挂指令、TR-11.1/11.2/11.3 浏览器走查
+  - 过程踩坑详见 jk-archive/sessions/2026-09-16_权限控制-类型与路由层.md 与 patterns/declare-module类型顶包与声明合并.md
 
 ## Task 12: 仪表盘首页（ECharts 数据可视化）
 - **Owner**: `[可选]`
