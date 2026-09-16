@@ -52,8 +52,23 @@ spec Task 8：创建通用 composables，与 Task 9（用户列表 CRUD）衔接
 | `catch (error)` error 未使用 | ESLint no-unused-vars | 改成 `catch` | Prettier 也会自动清 |
 | composable 顶层 import 具体 API | 耦合业务 | 删掉，fetcher/onConfirm 由调用方传 | composable 保持通用 |
 
+## 在 Task 9 中的消费（2026-09-16）
+
+useTable + useModal 在 UserListView 里首次完整消费，遇到的问题与解决：
+
+| 问题 | 原因 | 解决 |
+|------|------|------|
+| `<el-table<UserItem>>` Vite 模板解析报错 | Vue SFC 模板不支持 TS 泛型 | 改回普通标签，row 类型用 `as UserItem` 断言 |
+| query 两套状态（searchForm + useTable.query）不同步 | searchForm 绑模板，query 绑 API | 删掉 searchForm，模板直接 `v-model="query.name"` |
+| handleSearch 双请求 | page.value=1 触发 watch fetch + 手动 fetch | 只设 page.value=1 靠 watch 自动 fetch |
+| `<Q>` 没传 → 筛选参数类型宽松 → mock 严格比较不匹配 | useTable 默认 Q = Record<string, unknown> | 显式传 `<Q>` 对齐 mock 期望的 string 类型 |
+| onConfirm 缺 ElMessage + fetch | 闭包内忘了引用 ElMessage 和 useTable.fetch | 补 import，onConfirm 成功后 fetch() 刷新列表 |
+| dialogForm 缺 createTime 字段 | addUserApi 期望 Omit<UserItem,"id"> 含 createTime | dialogForm 加 createTime: '' 默认值 |
+| useModal.formData 和 dialogForm 两套状态 | open(row) 只存 formData，el-form 绑 dialogForm | watch dialogVisible 打开时 Object.assign 同步 |
+| handleDelete 删到当前页空但 page 不回退 | 边界场景未处理 | list 长度为 1 且 page > 1 时 page--（watch 自动 fetch） |
+
 ## 待办 / 后续
 
-- [ ] 在 UserListView 里消费 useTable + useForm + useModal（TR-8.3，开启 Task 9）
+- [x] 在 UserListView 里消费 useTable + useForm + useModal（TR-8.3 已满足）
 - [ ] `src/types/router.d.ts` RouteMeta 声明合并未建
 - [ ] 脚手架遗留 HomeView/AboutView/counter.ts/base.css 待 Task 20 清理

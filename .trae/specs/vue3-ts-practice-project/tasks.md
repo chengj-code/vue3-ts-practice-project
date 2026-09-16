@@ -179,7 +179,7 @@
 
 ## Task 9: 业务列表 CRUD 页面
 - **Owner**: `[用户]`
-- **Status**: `pending`
+- **Status**: `in_progress`
 - **Priority**: high
 - **Depends On**: Task 5, Task 8
 - **Description**:
@@ -193,6 +193,12 @@
   - `rule` TR-9.2: 新增弹窗提交后列表刷新；证据：列表新增一条数据
   - `rule` TR-9.3: 编辑后数据更新；证据：列表数据变化
   - `rule` TR-9.4: 删除确认后数据移除；证据：列表减少一条
+- **Completion Evidence**（2026-09-16 骨架完成）:
+  - mock/list.ts：加 name + status 筛选逻辑（query 参数显式布尔转换）
+  - UserListView.vue：查询表单 + 表格 + 分页 + 弹窗骨架全部画好
+  - useTable 消费：`<UserItem, { name?: string; status?: string }>` 显式传 Q；模板直接绑 query
+  - useModal 消费：dialogFormData + dialogForm 双状态 + watch 同步；onConfirm 区分新增/编辑
+  - 待完成：handleDelete 实现 + 删除边界处理 + 验收走查
 
 ## Task 10: 表单校验页面
 - **Owner**: `[用户]`

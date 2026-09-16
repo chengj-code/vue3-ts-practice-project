@@ -29,21 +29,34 @@ const allList: UserItem[] = generateList(238)
 interface ListQuery {
   page?: string
   pageSize?: string
+  name?: string
+  status?: string
 }
 
 export default [
-  // 用户列表（分页）
+  // 用户列表（分页 + 筛选）
   {
     url: '/api/user/list',
     method: 'get',
     response: ({ query }: { query: ListQuery }) => {
       const page = Number(query.page) || 1
       const pageSize = Number(query.pageSize) || 10
+      // 筛选（注意 query 全是字符串，status 需显式转布尔）
+      let filtered = allList
+      if (query.name?.trim()) {
+        filtered = filtered.filter((item) => item.name.includes(query.name!.trim()))
+      }
+      if (query.status === 'true') {
+        filtered = filtered.filter((item) => item.status === true)
+      } else if (query.status === 'false') {
+        filtered = filtered.filter((item) => item.status === false)
+      }
+      const total = filtered.length
       const start = (page - 1) * pageSize
       const end = start + pageSize
       return success({
-        list: allList.slice(start, end),
-        total: allList.length,
+        list: filtered.slice(start, end),
+        total,
         page,
         pageSize,
       })
