@@ -1,2 +1,3 @@
 // 自定义指令统一出口（如 v-permission）
-export {}
+import permission from './permission'
+export default { permission }

@@ -13,10 +13,13 @@ import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 
 import App from './App.vue'
 import router from './router'
+import directives from '@/directives'
 
 const app = createApp(App)
 
 app.use(createPinia().use(piniaPluginPersistedstate))
 app.use(router)
-
+Object.entries(directives).forEach(([name, directive]) => {
+    app.directive(name, directive)
+})
 app.mount('#app')

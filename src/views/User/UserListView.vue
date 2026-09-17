@@ -34,7 +34,7 @@
             <i class="title-bar" />
             用户列表
           </div>
-          <el-button type="primary" @click="handleAdd">新增用户</el-button>
+          <el-button type="primary" v-permission="['user:add']" @click="handleAdd">新增用户</el-button>
         </div>
       </template>
 
@@ -54,8 +54,10 @@
         <el-table-column prop="createTime" label="创建时间" width="180" />
         <el-table-column label="操作" width="160" align="center" fixed="right">
           <template #default="{ row }">
-            <el-button link type="primary" size="small" @click="handleEdit(row as UserItem)">编辑</el-button>
-            <el-button link type="danger" size="small" @click="handleDelete(row as UserItem)">删除</el-button>
+            <el-button link type="primary" size="small" v-permission="['user:edit']"
+              @click="handleEdit(row as UserItem)">编辑</el-button>
+            <el-button link type="danger" size="small" v-permission="['user:delete']"
+              @click="handleDelete(row as UserItem)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
