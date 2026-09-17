@@ -2,7 +2,7 @@
 title: v-permission 按钮级权限指令（T11 第 4 步）
 type: session
 date: 2026-09-17
-status: 进行中
+status: 已完成
 tags: [vue3, 自定义指令, 权限, v-permission, element-plus, typescript]
 related_files: [src/directives/permission.ts, src/directives/index.ts, src/main.ts, src/views/User/UserListView.vue, src/views/Home/DashboardView.vue, src/composables/usePermission.ts]
 ---
@@ -58,6 +58,7 @@ main.ts                   → Object.entries 批量 app.directive（注册名不
 
 ## 待办 / 后续
 
-- [ ] DefaultLayout 侧边栏菜单按 hasRole 过滤（T11 第 5 步）
-- [ ] TR-11.1/11.2/11.3 浏览器走查（admin 全显 / user 被 403 拦 + Dashboard 载体消失）
-- [ ] 走查通过后 T11 状态置 completed
+- [x] DefaultLayout 侧边栏菜单按 hasRole 过滤（T11 第 5 步；layoutRoutes computed 链上 `.filter(item => hasRole(item?.meta?.roles))`，与守卫共用 usePermission）
+- [x] TR-11.1/11.2/11.3 浏览器走查（2026-09-17，全新浏览器会话实测：user 菜单仅仪表盘 / /user/list → /403 / Dashboard el-empty 被移除；admin 菜单 2 项 / 列表页表格 10 行 + 增删改按钮齐 / el-empty 放行；console 无 error）
+- [x] 走查通过后 T11 状态置 completed
+- 走查教训：换账号验证必须用全新会话或先清 localStorage——pinia 持久化残留会让浏览器实际停留在上个账号（admin）身份，表现为「菜单过滤不生效、守卫不拦截、指令不移除」的假性 FAIL，与代码逻辑矛盾时先查 localStorage 里的真实 roles

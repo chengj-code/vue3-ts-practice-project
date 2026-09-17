@@ -38,10 +38,10 @@
   - 组件通信：props / 插槽
   - 心得/问题：`<component :is>` 要传组件对象不能传字符串；el-menu 折叠隐藏文字的 CSS 只认 span；图标组件必须显式 import（漏了不报错只留白）；children path 是相对路径要拼 `/`；用户下拉用 el-dropdown 的 command 模式。详见 jk-archive/sessions/2026-09-15_布局系统与app-store.md
 
-- [ ] **路由结构与动态路由**（静态 + 路由级角色过滤已完成，菜单侧过滤随 T11 收尾）
-  - 文件：`src/router/index.ts`
+- [x] **路由结构与动态路由**（2026-09-17 随 T11 收尾完成：静态 + 路由级角色过滤 + 菜单侧过滤）
+  - 文件：`src/router/index.ts`、`src/layouts/DefaultLayout.vue`
   - 要点：静态路由 + 动态路由（按权限过滤）、路由 meta（title/roles/icon）
-  - 心得/问题：嵌套路由（layout → children）+ meta { title, icon } 已完成；RouteMeta 已在 env.d.ts 声明合并（roles?: string[]）；守卫的 meta.roles 拦截已生效（手敲 URL 也拦）；DefaultLayout 菜单按 hasRole 过滤待做
+  - 心得/问题：嵌套路由（layout → children）+ meta { title, icon } 已完成；RouteMeta 已在 env.d.ts 声明合并（roles?: string[]）；守卫的 meta.roles 拦截已生效（手敲 URL 也拦）；DefaultLayout 菜单 computed 链上 `.filter(hasRole(meta.roles))`，与守卫同一判断源，双账号走查通过
 
 ### 阶段 4：复用能力（重点练习）
 
@@ -73,10 +73,11 @@
   - 使用 `useForm` composable
   - 心得/问题：异步校验器（用户名查重）统一用 callback 风格（失败 callback(new Error)、异常/空值 callback() 兜底）；查重接口用 GET /api/user/check 避免和新增路由冲突；password 的 required 和长度规则拆两条。详见 jk-archive/patterns/useTable-useModal组合CRUD.md
 
-- [ ] **T11 权限控制**（进行中，4/6 步：类型层 + 判断层 + 路由层 + 指令层已完成，剩菜单过滤 + 走查）
+- [x] **T11 权限控制**（2026-09-17 完成，6/6 步全部走查通过）
   - 要点：路由级（meta.roles + 守卫）、按钮级（`v-permission` 自定义指令）、无权限页
   - 心得/问题：① env.d.ts 加 declare module 必须先 `export {}` 变模块，否则顶掉整个 vue-router 包类型；② ImportMetaEnv 随之要用 declare global 包，否则 env 类型静默变 any；③ 权限判断恒真 bug 最致命——`|| item`（非空字符串恒 truthy）和 `required.length`（漏 === 0，length=1 也 truthy）都让普通用户拿到 admin 权限；④ 守卫三层顺序：白名单 → token → hasRole；/403 必须在白名单防死循环。详见 jk-archive/sessions/2026-09-16_权限控制-类型与路由层.md
   - 心得补记（2026-09-17 指令层）：v-permission 用 removeChild 不用 display:none（DOM 移除防 DevTools 绕过）；手动标注 `DirectiveBinding` 无泛型 = any，会废掉 satisfies 的上下文推导，让它自己推；页面被路由守卫拦住时按钮级指令「够不到」，测试载体放不设 roles 的 Dashboard；路由 roles 为测按钮临时改宽是污染权限模型，审查后已还原。详见 jk-archive/sessions/2026-09-17_v-permission按钮级权限指令.md
+  - 心得补记（2026-09-17 菜单过滤 + 走查收尾）：第 5 步实现就是在 DefaultLayout 的 layoutRoutes computed 上串 `.filter(item => hasRole(item.meta.roles))`，与守卫共用 usePermission 同一判断，菜单层和路由层天然一致；不设 roles 的路由（dashboard）对所有人可见，roles:['admin'] 的用户列表只对 admin 渲染。走查证据：user 登录后侧边栏仅 1 项「仪表盘」、手敲 /user/list 被守卫甩到 /403、Dashboard 的 v-permission 测试载体 el-empty 从 DOM 移除；admin 登录后菜单 2 项、/user/list 正常渲染表格 10 行与增删改按钮、el-empty 放行；console 无 error。教训：浏览器走查要用全新会话（或先清 localStorage），pinia 持久化残留会让「换账号验证」实际还是上个账号的身份，导致菜单/指令现象与预期矛盾。
 
 ## 二、进阶选做（完成核心后按需选择）
 
