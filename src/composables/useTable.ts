@@ -34,20 +34,34 @@ export function useTable<T, Q extends Record<string, unknown> = Record<string, u
         }
     };
 
-    const reset = () => {
-        query.value = {} as Q;
-        page.value = 1;
-        pageSize.value = defaultPageSize;
-        fetch();
-    };
-
+    // 只监听分页变化（用户翻页）；search/reset 在值无变化时自行 fetch，避免重复请求
     watch([page, pageSize], () => {
         fetch();
     })
+
+    // 搜索：已在第一页就手动发（同值赋值不触发 watch），否则改 page 交给 watch
+    const search = () => {
+        if (page.value === 1) {
+            fetch();
+        } else {
+            page.value = 1;
+        }
+    };
+
+    // 重置：清空条件；分页参数均未变化时手动 fetch，否则交给 watch 触发
+    const reset = () => {
+        query.value = {} as Q;
+        if (page.value === 1 && pageSize.value === defaultPageSize) {
+            fetch();
+        } else {
+            page.value = 1;
+            pageSize.value = defaultPageSize;
+        }
+    };
 
     if (immediate) {
         fetch();
     }
 
-    return { list, loading, page, pageSize, total, query, fetch, reset, }
+    return { list, loading, page, pageSize, total, query, fetch, search, reset, }
 }

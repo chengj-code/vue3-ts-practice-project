@@ -65,7 +65,8 @@
   - 文件：`src/views/User/UserListView.vue`（实际路径，views/user/UserList.vue 为计划名）
   - 要点：查询表单 + 表格 + 分页 + 新增/编辑弹窗 + 删除确认
   - 必须使用 `useTable` composable
-  - 心得/问题：三个 composable 组合消费；handleSearch 只设 page=1 靠 watch 自动 fetch；弹窗数据靠 watch isVisible 同步；onConfirm 内区分新增/编辑。详见 jk-archive/sessions/2026-09-16_用户列表CRUD.md
+  - 心得/问题：三个 composable 组合消费；弹窗数据靠 watch isVisible 同步；onConfirm 内区分新增/编辑。详见 jk-archive/sessions/2026-09-16_用户列表CRUD.md
+  - 心得补记（2026-09-17）：原「handleSearch 只设 page=1 靠 watch 自动 fetch」是错误认知，正是查询失效根因——page 已是 1 时同值赋值不触发 watch（fetch 从未执行）；显式调 fetch 后又与 watch 叠加成双请求；skip 状态标记防重有残留缝隙（第 1 页查询时标记无人消费 → 吞掉下次翻页）。终版 useTable.search() 用条件 fetch：值没变手动发、变了交给 watch。详见 jk-archive/sessions/2026-09-17_useTable查询失效与重复请求.md 与 patterns/useTable-watch触发语义与查询防重.md
 
 - [x] **T10 表单校验**（2026-09-16 完成）
   - 要点：必填、长度、格式（手机号/邮箱）、自定义校验规则

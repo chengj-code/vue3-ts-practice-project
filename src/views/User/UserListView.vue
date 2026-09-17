@@ -103,7 +103,7 @@ import { useForm } from '@/composables/useForm'
 
 // ========== 查询表单 ==========
 
-const { query, fetch, reset, list, loading: listLoading, total, page, pageSize } = useTable<UserItem, { name?: string; status?: string }>(
+const { query, fetch, search, reset, list, loading: listLoading, total, page, pageSize } = useTable<UserItem, { name?: string; status?: string }>(
   getUserListApi,
   { immediate: true }
 )
@@ -192,7 +192,7 @@ watch(dialogVisible, (visible) => {
 
 // ========== 事件处理 ==========
 
-const handleSearch = () => { page.value = 1 }
+const handleSearch = () => search()
 
 const handleReset = () => { reset() }
 
