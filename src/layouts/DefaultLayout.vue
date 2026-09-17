@@ -73,29 +73,43 @@
 </template>
 
 <script setup lang="ts">
-import router from '@/router';
-import { useAppStore } from '@/stores/app';
-import { useUserStore } from '@/stores/user';
-import { ArrowDown, Expand, Fold, More, Odometer, SwitchButton, User } from '@element-plus/icons-vue';
-import { usePermission } from '@/composables/usePermission';
+import router from '@/router'
+import { useAppStore } from '@/stores/app'
+import { useUserStore } from '@/stores/user'
+import {
+  ArrowDown,
+  Expand,
+  Fold,
+  More,
+  Odometer,
+  SwitchButton,
+  User,
+} from '@element-plus/icons-vue'
+import { usePermission } from '@/composables/usePermission'
 
-const userStore = useUserStore();
-const appStore = useAppStore();
-const { userInfo } = storeToRefs(userStore);
-const { isCollapse } = storeToRefs(appStore);
-const { toggleCollapse } = appStore;
-const layoutRoutes = (router.options.routes?.find((item) => item.name === 'layout')?.children ?? []).filter((item) => !item?.meta?.hidden);
+const userStore = useUserStore()
+const appStore = useAppStore()
+const { hasRole } = usePermission()
+const { userInfo } = storeToRefs(userStore)
+const { isCollapse } = storeToRefs(appStore)
+const { toggleCollapse } = appStore
+
+const layoutRoutes = computed(() =>
+  (router.options.routes.find((item) => item.name === 'layout')?.children ?? [])
+    .filter((item) => !item?.meta?.hidden)
+    .filter((item) => hasRole(item?.meta?.roles)),
+)
+
 const iconMap: Record<string, Component> = {
   Odometer,
   User,
 }
 const onCommand = (command: string) => {
   if (command === 'logout') {
-    userStore.clearUser();
-    router.replace('/login');
+    userStore.clearUser()
+    router.replace('/login')
   }
 }
-
 </script>
 
 <style scoped lang="scss">
@@ -110,8 +124,7 @@ const onCommand = (command: string) => {
   flex-direction: column;
   overflow-x: hidden;
   background:
-    radial-gradient(420px 320px at 110% -8%, rgba(52, 211, 153, 0.08), transparent 60%),
-    #0c1218;
+    radial-gradient(420px 320px at 110% -8%, rgba(52, 211, 153, 0.08), transparent 60%), #0c1218;
   border-right: 1px solid var(--console-line);
   transition: width 0.3s;
 }
@@ -275,7 +288,9 @@ const onCommand = (command: string) => {
   color: var(--console-text-2);
   border-radius: 8px;
   cursor: pointer;
-  transition: color 0.2s ease, background 0.2s ease;
+  transition:
+    color 0.2s ease,
+    background 0.2s ease;
 
   &:hover {
     color: var(--console-accent);
@@ -357,7 +372,7 @@ const onCommand = (command: string) => {
     var(--console-bg);
 
   /* 内容浮在网格纹理之上 */
-  >* {
+  > * {
     position: relative;
     z-index: 1;
   }
@@ -377,7 +392,6 @@ const onCommand = (command: string) => {
 }
 
 @keyframes footer-breathe {
-
   0%,
   100% {
     opacity: 1;

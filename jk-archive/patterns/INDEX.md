@@ -9,3 +9,4 @@
 | Vue SFC 模板不能写 TypeScript 泛型 | vue3, vite, 模板编译, typescript, element-plus | 2026-09-16 | sessions/2026-09-16_用户列表CRUD.md | [vue模板不能写泛型.md](./vue模板不能写泛型.md) |
 | declare module 在脚本文件中顶掉整个包类型（env.d.ts 模块增强） | typescript, declare-module, 模块增强, 声明合并, env.d.ts, vue-router | 2026-09-16 | sessions/2026-09-16_权限控制-类型与路由层.md | [declare-module类型顶包与声明合并.md](./declare-module类型顶包与声明合并.md) |
 | useTable watch 触发语义与查询防重（条件 fetch 模式） | vue3, composable, useTable, watch, 防重复请求, element-plus, 分页 | 2026-09-17 | sessions/2026-09-17_useTable查询失效与重复请求.md | [useTable-watch触发语义与查询防重.md](./useTable-watch触发语义与查询防重.md) |
+| Vue3 自定义指令封装（v-permission 模板） | vue3, 自定义指令, 权限, typescript, directive | 2026-09-17 | sessions/2026-09-17_v-permission按钮级权限指令.md | [vue3-自定义指令封装.md](./vue3-自定义指令封装.md) |

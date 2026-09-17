@@ -239,12 +239,13 @@
   - `rule` TR-11.1: 无权限用户访问受保护路由被重定向或提示无权限；证据：浏览器交互
   - `rule` TR-11.2: 无权限按钮被隐藏/禁用；证据：页面 DOM 检查
   - `rule` TR-11.3: 有权限用户可正常访问与操作；证据：功能正常
-- **Completion Evidence**（2026-09-16，进行中 3/6 步）:
+- **Completion Evidence**（2026-09-16~17，进行中 4/6 步）:
   - 类型层：env.d.ts 加 `export {}` 成模块文件，`declare module 'vue-router'` 增强 RouteMeta（title/icon/requiresAuth/roles）；ImportMetaEnv 改 declare global 包裹（否则静默退化为 any）；type-check 通过
   - 判断层：src/composables/usePermission.ts 完成——isAdmin + hasAny（空入参不设限 / admin 短路 / some+includes 交集，顺序固定）+ hasRole/hasPermission，出口严格 boolean，userInfo=null 用 `?? []` 兜底
   - 路由层：/user/list meta 配 `roles: ['admin']`（dashboard 故意不配验证不设限）；守卫在白名单/token 之后加第三层 hasRole 判断，不通过 return /403；/403 顶层路由 requiresAuth:false 防重定向死循环；ForbiddenView 用 el-result 全屏居中卡片
-  - 待做：v-permission 指令（directives/index.ts + main.ts 注册）、DefaultLayout 菜单过滤、UserListView 按钮挂指令、TR-11.1/11.2/11.3 浏览器走查
-  - 过程踩坑详见 jk-archive/sessions/2026-09-16_权限控制-类型与路由层.md 与 patterns/declare-module类型顶包与声明合并.md
+  - 指令层（2026-09-17）：src/directives/permission.ts——`Directive<HTMLElement, string[]>` + satisfies 校验 + GlobalDirectives 声明合并（模板 v-permission 类型提示，Vue 3.5+）；单 mounted 钩子，hasRole || hasPermission 任一命中即显示，否则 `el.parentNode?.removeChild(el)`（DOM 移除而非 display:none，防 DevTools 绕过）；directives/index.ts map 出口 + main.ts Object.entries 批量注册（注册名不带 v- 前缀）；UserListView 三按钮挂 ['user:add'/'user:edit'/'user:delete']（与 mock permissions 对齐）；DashboardView el-empty 挂 ['admin'] 作按钮级测试载体（user 被路由层拦截进不了列表页）
+  - 待做：DefaultLayout 菜单按 hasRole 过滤、TR-11.1/11.2/11.3 浏览器走查
+  - 过程踩坑详见 jk-archive/sessions/2026-09-16_权限控制-类型与路由层.md 与 sessions/2026-09-17_v-permission按钮级权限指令.md
 
 ## Task 12: 仪表盘首页（ECharts 数据可视化）
 - **Owner**: `[可选]`

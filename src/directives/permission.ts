@@ -4,10 +4,10 @@ import type { Directive } from 'vue'
 export type PermissionDirective = Directive<HTMLElement, string[]>
 
 declare module 'vue' {
-    export interface GlobalDirectives {
-        // prefix with v (v-permission)
-        vPermission: PermissionDirective
-    }
+  export interface GlobalDirectives {
+    // prefix with v (v-permission)
+    vPermission: PermissionDirective
+  }
 }
 // binding 参数说明
 // value：传递给指令的值。例如，在v-my-directive="1 + 1"中，值将是2。
@@ -18,10 +18,10 @@ declare module 'vue' {
 // dir：指令定义对象。
 
 export default {
-    mounted: (el, binding) => {
-        const { hasRole, hasPermission } = usePermission()
-        // 语义：roles 或 permissions 任一命中即显示（按钮级权限字符串走 permissions 维度）
-        if (hasRole(binding.value) || hasPermission(binding.value)) return
-        el.parentNode?.removeChild(el)
-    }
+  mounted: (el, binding) => {
+    const { hasRole, hasPermission } = usePermission()
+    // 语义：roles 或 permissions 任一命中即显示（按钮级权限字符串走 permissions 维度）
+    if (hasRole(binding.value) || hasPermission(binding.value)) return
+    el.parentNode?.removeChild(el)
+  },
 } satisfies PermissionDirective

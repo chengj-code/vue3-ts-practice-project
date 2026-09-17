@@ -20,6 +20,6 @@ const app = createApp(App)
 app.use(createPinia().use(piniaPluginPersistedstate))
 app.use(router)
 Object.entries(directives).forEach(([name, directive]) => {
-    app.directive(name, directive)
+  app.directive(name, directive)
 })
 app.mount('#app')

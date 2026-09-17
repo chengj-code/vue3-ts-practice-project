@@ -11,6 +11,7 @@
 | 用户列表 CRUD + 表单校验深化（Task 9 + Task 10） | 已完成 | 2026-09-16 | vue3, element-plus, useTable, useModal, useForm, CRUD, mock, typescript, 表单校验, 异步校验, 登录 | [sessions/2026-09-16_用户列表CRUD.md](./sessions/2026-09-16_用户列表CRUD.md) |
 | 权限控制 T11（1-3 步：RouteMeta 增强 + usePermission + 守卫/403） | 进行中 | 2026-09-16 | vue3, typescript, 权限, rbac, vue-router, 守卫, composable, 模块增强, element-plus | [sessions/2026-09-16_权限控制-类型与路由层.md](./sessions/2026-09-16_权限控制-类型与路由层.md) |
 | useTable 查询失效与重复请求修复 | 已完成 | 2026-09-17 | vue3, composable, useTable, watch, 防重复请求, element-plus, typescript | [sessions/2026-09-17_useTable查询失效与重复请求.md](./sessions/2026-09-17_useTable查询失效与重复请求.md) |
+| v-permission 按钮级权限指令（T11 第 4 步） | 进行中 | 2026-09-17 | vue3, 自定义指令, 权限, v-permission, element-plus, typescript | [sessions/2026-09-17_v-permission按钮级权限指令.md](./sessions/2026-09-17_v-permission按钮级权限指令.md) |
 
 ## 模式卡片（patterns/）
 
@@ -23,3 +24,4 @@
 | Vue SFC 模板不能写 TypeScript 泛型 | 2026-09-16 | vue3, vite, 模板编译, typescript, element-plus | sessions/2026-09-16_用户列表CRUD.md | [patterns/vue模板不能写泛型.md](./patterns/vue模板不能写泛型.md) |
 | declare module 在脚本文件中顶掉整个包类型（env.d.ts 模块增强） | 2026-09-16 | typescript, declare-module, 模块增强, 声明合并, env.d.ts, vue-router | sessions/2026-09-16_权限控制-类型与路由层.md | [patterns/declare-module类型顶包与声明合并.md](./patterns/declare-module类型顶包与声明合并.md) |
 | useTable watch 触发语义与查询防重（条件 fetch 模式） | 2026-09-17 | vue3, composable, useTable, watch, 防重复请求, element-plus, 分页 | sessions/2026-09-17_useTable查询失效与重复请求.md | [patterns/useTable-watch触发语义与查询防重.md](./patterns/useTable-watch触发语义与查询防重.md) |
+| Vue3 自定义指令封装（v-permission 模板） | 2026-09-17 | vue3, 自定义指令, 权限, typescript, directive | sessions/2026-09-17_v-permission按钮级权限指令.md | [patterns/vue3-自定义指令封装.md](./patterns/vue3-自定义指令封装.md) |

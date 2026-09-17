@@ -10,8 +10,13 @@
     <el-card class="console-card search-card">
       <el-form :inline="true" :model="query" class="search-form">
         <el-form-item label="姓名">
-          <el-input v-model="query.name" placeholder="请输入姓名" @keyup.enter="handleSearch" clearable
-            style="width: 200px" />
+          <el-input
+            v-model="query.name"
+            placeholder="请输入姓名"
+            @keyup.enter="handleSearch"
+            clearable
+            style="width: 200px"
+          />
         </el-form-item>
         <el-form-item label="状态">
           <el-select v-model="query.status" placeholder="全部" clearable style="width: 120px">
@@ -34,7 +39,9 @@
             <i class="title-bar" />
             用户列表
           </div>
-          <el-button type="primary" v-permission="['user:add']" @click="handleAdd">新增用户</el-button>
+          <el-button type="primary" v-permission="['user:add']" @click="handleAdd"
+            >新增用户</el-button
+          >
         </div>
       </template>
 
@@ -54,23 +61,47 @@
         <el-table-column prop="createTime" label="创建时间" width="180" />
         <el-table-column label="操作" width="160" align="center" fixed="right">
           <template #default="{ row }">
-            <el-button link type="primary" size="small" v-permission="['user:edit']"
-              @click="handleEdit(row as UserItem)">编辑</el-button>
-            <el-button link type="danger" size="small" v-permission="['user:delete']"
-              @click="handleDelete(row as UserItem)">删除</el-button>
+            <el-button
+              link
+              type="primary"
+              size="small"
+              v-permission="['user:edit']"
+              @click="handleEdit(row as UserItem)"
+              >编辑</el-button
+            >
+            <el-button
+              link
+              type="danger"
+              size="small"
+              v-permission="['user:delete']"
+              @click="handleDelete(row as UserItem)"
+              >删除</el-button
+            >
           </template>
         </el-table-column>
       </el-table>
 
       <!-- 分页 -->
       <div class="pagination-wrapper">
-        <el-pagination v-model:current-page="page" v-model:page-size="pageSize" :page-sizes="[10, 20, 50, 100]"
-          :total="total" layout="total, sizes, prev, pager, next, jumper" background />
+        <el-pagination
+          v-model:current-page="page"
+          v-model:page-size="pageSize"
+          :page-sizes="[10, 20, 50, 100]"
+          :total="total"
+          layout="total, sizes, prev, pager, next, jumper"
+          background
+        />
       </div>
     </el-card>
 
     <!-- 新增/编辑弹窗（console-dialog 为 teleport 到 body 后的全局命名空间样式） -->
-    <el-dialog v-model="dialogVisible" :title="dialogTitle" width="480px" destroy-on-close class="console-dialog">
+    <el-dialog
+      v-model="dialogVisible"
+      :title="dialogTitle"
+      width="480px"
+      destroy-on-close
+      class="console-dialog"
+    >
       <el-form :model="form" :rules="formRules" ref="formRef" label-width="80px">
         <el-form-item label="姓名" prop="name">
           <el-input v-model="form.name" placeholder="请输入姓名" />
@@ -98,17 +129,31 @@
 
 <script setup lang="ts">
 import { ElMessage, ElMessageBox, type FormRules } from 'element-plus'
-import { addUserApi, deleteUserApi, getUserByNameApi, getUserListApi, updateUserApi, type UserItem } from '@/api/modules/list'
+import {
+  addUserApi,
+  deleteUserApi,
+  getUserByNameApi,
+  getUserListApi,
+  updateUserApi,
+  type UserItem,
+} from '@/api/modules/list'
 import { useTable } from '@/composables/useTable'
 import { useModal } from '@/composables/useModal'
 import { useForm } from '@/composables/useForm'
 
 // ========== 查询表单 ==========
 
-const { query, fetch, search, reset, list, loading: listLoading, total, page, pageSize } = useTable<UserItem, { name?: string; status?: string }>(
-  getUserListApi,
-  { immediate: true }
-)
+const {
+  query,
+  fetch,
+  search,
+  reset,
+  list,
+  loading: listLoading,
+  total,
+  page,
+  pageSize,
+} = useTable<UserItem, { name?: string; status?: string }>(getUserListApi, { immediate: true })
 
 // ========== 弹窗表单（useForm 管校验 + loading + 表单数据） ==========
 
@@ -123,10 +168,21 @@ interface DialogForm {
 }
 
 const defaultDialogForm: DialogForm = {
-  id: 0, name: '', age: 18, email: '', phone: '', status: true, createTime: '',
+  id: 0,
+  name: '',
+  age: 18,
+  email: '',
+  phone: '',
+  status: true,
+  createTime: '',
 }
 
-const { form, formRef, loading, submit: submitForm } = useForm<DialogForm>({
+const {
+  form,
+  formRef,
+  loading,
+  submit: submitForm,
+} = useForm<DialogForm>({
   initialData: { ...defaultDialogForm },
   onSubmit: async () => {
     // API 逻辑全在 useModal.onConfirm，这里空实现
@@ -135,7 +191,13 @@ const { form, formRef, loading, submit: submitForm } = useForm<DialogForm>({
 
 // ========== 弹窗开关（useModal 管开关 + API 调用） ==========
 
-const { visible: dialogVisible, formData: dialogFormData, open, close, confirm } = useModal<UserItem>({
+const {
+  visible: dialogVisible,
+  formData: dialogFormData,
+  open,
+  close,
+  confirm,
+} = useModal<UserItem>({
   onConfirm: async () => {
     if (dialogFormData.value?.id) {
       await updateUserApi(dialogFormData.value.id, form.value)
@@ -159,8 +221,8 @@ const formRules: FormRules = {
     {
       trigger: 'blur',
       validator: async (_rule, value, callback) => {
-        if (!value) return callback()  // 空值由 required 规则拦截
-        if (isEdit.value) return callback()  // 编辑跳过
+        if (!value) return callback() // 空值由 required 规则拦截
+        if (isEdit.value) return callback() // 编辑跳过
         try {
           const user = await getUserByNameApi(value)
           if (user) {
@@ -169,7 +231,7 @@ const formRules: FormRules = {
             callback()
           }
         } catch {
-          callback()  // mock 接口异常时不阻塞提交
+          callback() // mock 接口异常时不阻塞提交
         }
       },
     },
@@ -196,11 +258,17 @@ watch(dialogVisible, (visible) => {
 
 const handleSearch = () => search()
 
-const handleReset = () => { reset() }
+const handleReset = () => {
+  reset()
+}
 
-const handleAdd = () => { open() }
+const handleAdd = () => {
+  open()
+}
 
-const handleEdit = (row: UserItem) => { open(row) }
+const handleEdit = (row: UserItem) => {
+  open(row)
+}
 
 const handleDelete = async (row: UserItem) => {
   try {
@@ -210,7 +278,7 @@ const handleDelete = async (row: UserItem) => {
     fetch()
     // 边界：删完当前页空了且 page > 1，回退一页
     if (list.value.length === 1 && page.value > 1) {
-      page.value -= 1  // watch 自动 fetch
+      page.value -= 1 // watch 自动 fetch
     }
   } catch {
     // 用户点取消静默
@@ -218,8 +286,8 @@ const handleDelete = async (row: UserItem) => {
 }
 
 const handleSubmit = async () => {
-  await submitForm()  // useForm: validate → onSubmit(空) → loading 自动关
-  await confirm()     // useModal: onConfirm(调 API) → 成功后 close
+  await submitForm() // useForm: validate → onSubmit(空) → loading 自动关
+  await confirm() // useModal: onConfirm(调 API) → 成功后 close
 }
 </script>
 
