@@ -10,13 +10,8 @@
     <el-card class="console-card search-card">
       <el-form :inline="true" :model="query" class="search-form">
         <el-form-item label="姓名">
-          <el-input
-            v-model="query.name"
-            placeholder="请输入姓名"
-            @keyup.enter="handleSearch"
-            clearable
-            style="width: 200px"
-          />
+          <el-input v-model="query.name" placeholder="请输入姓名" @keyup.enter="handleSearch" clearable
+            style="width: 200px" />
         </el-form-item>
         <el-form-item label="状态">
           <el-select v-model="query.status" placeholder="全部" clearable style="width: 120px">
@@ -39,9 +34,7 @@
             <i class="title-bar" />
             用户列表
           </div>
-          <el-button type="primary" v-permission="['user:add']" @click="handleAdd"
-            >新增用户</el-button
-          >
+          <el-button type="primary" v-permission="['user:add']" @click="handleAdd">新增用户</el-button>
         </div>
       </template>
 
@@ -61,47 +54,23 @@
         <el-table-column prop="createTime" label="创建时间" width="180" />
         <el-table-column label="操作" width="160" align="center" fixed="right">
           <template #default="{ row }">
-            <el-button
-              link
-              type="primary"
-              size="small"
-              v-permission="['user:edit']"
-              @click="handleEdit(row as UserItem)"
-              >编辑</el-button
-            >
-            <el-button
-              link
-              type="danger"
-              size="small"
-              v-permission="['user:delete']"
-              @click="handleDelete(row as UserItem)"
-              >删除</el-button
-            >
+            <el-button link type="primary" size="small" v-permission="['user:edit']"
+              @click="handleEdit(row as UserItem)">编辑</el-button>
+            <el-button link type="danger" size="small" v-permission="['user:delete']"
+              @click="handleDelete(row as UserItem)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
 
       <!-- 分页 -->
       <div class="pagination-wrapper">
-        <el-pagination
-          v-model:current-page="page"
-          v-model:page-size="pageSize"
-          :page-sizes="[10, 20, 50, 100]"
-          :total="total"
-          layout="total, sizes, prev, pager, next, jumper"
-          background
-        />
+        <el-pagination v-model:current-page="page" v-model:page-size="pageSize" :page-sizes="[10, 20, 50, 100]"
+          :total="total" layout="total, sizes, prev, pager, next, jumper" background />
       </div>
     </el-card>
 
     <!-- 新增/编辑弹窗（console-dialog 为 teleport 到 body 后的全局命名空间样式） -->
-    <el-dialog
-      v-model="dialogVisible"
-      :title="dialogTitle"
-      width="480px"
-      destroy-on-close
-      class="console-dialog"
-    >
+    <el-dialog v-model="dialogVisible" :title="dialogTitle" width="480px" destroy-on-close class="console-dialog">
       <el-form :model="form" :rules="formRules" ref="formRef" label-width="80px">
         <el-form-item label="姓名" prop="name">
           <el-input v-model="form.name" placeholder="请输入姓名" />
@@ -286,7 +255,9 @@ const handleDelete = async (row: UserItem) => {
 }
 
 const handleSubmit = async () => {
-  await submitForm() // useForm: validate → onSubmit(空) → loading 自动关
+  // 门禁：useForm 校验失败返回 false，必须拦住后续 confirm，否则空/脏数据会绕过校验入库
+  const valid = await submitForm() // useForm: validate → onSubmit(空) → loading 自动关
+  if (!valid) return
   await confirm() // useModal: onConfirm(调 API) → 成功后 close
 }
 </script>

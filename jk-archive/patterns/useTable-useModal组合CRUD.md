@@ -3,6 +3,7 @@ title: useTable + useModal + useForm 组合实现 CRUD 页面
 type: pattern
 date: 2026-09-16
 verified: 2026-09-16
+revised: 2026-09-17
 tags: [vue3, composable, CRUD, useTable, useModal, useForm, element-plus, typescript]
 related_files: [src/composables/useTable.ts, src/composables/useModal.ts, src/composables/useForm.ts, src/views/User/UserListView.vue]
 source: sessions/2026-09-16_用户列表CRUD.md
@@ -35,7 +36,7 @@ source: sessions/2026-09-16_用户列表CRUD.md
 9. el-form `ref` 直接绑 useForm 返回的 `formRef`，**不要再手动声明 formRef**
 10. onSubmit **空实现**（API 全在 useModal.onConfirm），useForm 只做 validate
 11. 弹窗打开时 watch visible，Object.assign(form.value, formData.value ?? 默认值) 同步数据
-12. handleSubmit 串联：`await submitForm()` → `await confirm()`
+12. handleSubmit 串联但**必须带门禁**：submit 返回 `Promise<boolean>`（校验失败 false / 成功 true），`if (!(await submitForm())) return` 后再 `await confirm()`。2026-09-17 走查抓到过无门禁版本空表单绕过校验直接入库的线上级 bug（见 sessions/2026-09-17_task20验收与useForm校验门禁修复.md）
 
 ### useForm 泛型约束调整
 
@@ -82,10 +83,11 @@ watch(dialogVisible, (visible) => {
   Object.assign(form.value, dialogFormData.value ?? { ...defaultForm })
 })
 
-// 5. handleSubmit 串联两者
+// 5. handleSubmit 串联两者（门禁不可省）
 const handleSubmit = async () => {
-  await submitForm()  // validate → onSubmit(空) → loading 自动关
-  await confirm()     // onConfirm(调 API) → 成功后 close
+  const valid = await submitForm() // validate → onSubmit(空) → loading 自动关；失败返回 false
+  if (!valid) return               // 校验不过必须拦住，否则 confirm 会让脏数据入库
+  await confirm()                  // onConfirm(调 API) → 成功后 close
 }
 ```
 
@@ -101,6 +103,7 @@ const handleSubmit = async () => {
 
 ## 注意事项 / 坑
 
+- **submit 结果必须门禁 confirm**（2026-09-17 血泪修正）：useForm 校验失败不抛错只返回 false，页面侧无条件继续 await confirm 就会空/脏数据入库。表单校验的验收必须包含反向断言「非法数据时请求根本没发出」，只看红字提示不够
 - API 逻辑**只放一处**（useModal.onConfirm），useForm.onSubmit 必须空实现，否则会双调
 - useForm 返回的 `form` 和模板 `:model` 绑定，不要再手动声明 reactive dialogForm
 - useForm 返回的 `formRef` 和模板 `ref` 绑定，不要再手动声明 ref

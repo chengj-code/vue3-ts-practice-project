@@ -383,9 +383,9 @@
 
 ## Task 20: 整体验收与构建
 - **Owner**: `[AI]` + `[用户]`
-- **Status**: `pending`
+- **Status**: `completed`
 - **Priority**: high
-- **Depends On**: Task 1 - Task 19
+- **Depends On**: Task 1 - Task 11（T12-T19 进阶选做未纳入本轮）
 - **Description**:
   - 执行 `npm run type-check` 确保零错误
   - 执行 `npm run build` 确保构建成功
@@ -397,4 +397,11 @@
   - `rule` TR-20.2: `npm run build` 退出码 0 且产物生成；证据：dist 目录
   - `rubric` TR-20.3: TypeScript 类型严格度；scale 1-5；anchors 1=大量any/3=部分any/5=全量严格类型无any；threshold >= 4；证据：代码扫描
   - `rubric` TR-20.4: 目录结构与代码分层；scale 1-5；anchors 1=混乱/3=基本分层/5=清晰规范单一职责；threshold >= 4；证据：目录树审查
-- **Notes**: 此任务为最终验收门
+- **Completion Evidence**（2026-09-17）:
+  - TR-20.1 PASS：`pnpm type-check`（vue-tsc --build）退出码 0，最终代码零类型错误
+  - TR-20.2 PASS：`pnpm build` 退出码 0，1755 模块转换成功，dist/ 产物生成；路由级分包清晰（LoginView/DashboardView/UserListView/ForbiddenView/DefaultLayout 各自独立 chunk，gzip 后主体约 140KB）
+  - 全流程浏览器走查 PASS（dev server 实测，非静态推断）：错误密码登录拦截 + 错误提示 → admin 登录 → 仪表盘 → 列表查询（238→1 全命中）/重置 → 新增空提交拦截（3 条必填报错、零 XHR、总数不变）→ 非法邮箱/手机号拦截（零 XHR）→ 合法新增（238→239，首行字段完整）→ 编辑（姓名/邮箱更新，id/createTime 保留，总数不变）→ 删除确认（239→238）→ 登出清 store 回 /login → 手敲 /dashboard 带 redirect 重定向；权限环节（菜单过滤/403/v-permission）采用当日 T11 双账号走查证据；console 全程无 error
+  - 走查发现并修复 1 个 P0 bug：useForm.submit 校验失败仅 return（resolve），UserListView 无条件继续 confirm 导致空表单绕过校验入库（238→239 脏数据实证）；修复为 submit 返回 Promise<boolean> + handleSubmit 门禁（详见 jk-archive/sessions/2026-09-17_task20验收与useForm校验门禁修复.md），修复后重新走查并重跑 build
+  - TR-20.3 评级 5/5：手写 src 代码零显式 any、零 @ts-ignore；@ts-nocheck 仅存在于插件自动生成的 auto-imports.d.ts / components.d.ts；request.ts 保留一处已归档说明的 `as AxiosResponse` 必要签名断言
+  - TR-20.4 评级 5/5：api（request/modules/types 三层）/ composables / directives / layouts / router / stores / views（按业务域分目录）职责单一；脚手架示例文件（HelloWorld、TheWelcome、WelcomeItem、icons×5、logo.svg）与历史死文件 views/Home/UserListView.vue 已删除；base.css 精简为纯 reset
+- **Notes**: 此任务为最终验收门；核心必做 T1-T11 + 最终验收全部完成，T12-T19 进阶选做保持 pending

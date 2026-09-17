@@ -92,9 +92,16 @@
 
 ## 三、最终验收
 
-- [ ] 全流程走查：登录 → 仪表盘 → 列表 CRUD → 表单 → 权限 → 登出
-- [ ] `npm run type-check` 零错误
-- [ ] `npm run build` 成功
+- [x] 全流程走查：登录 → 仪表盘 → 列表 CRUD → 表单 → 权限 → 登出（2026-09-17 浏览器实测通过；走查中抓到并修复 useForm 校验门禁 bug，详见 jk-archive/sessions/2026-09-17_task20验收与useForm校验门禁修复.md）
+- [x] `npm run type-check` 零错误（2026-09-17 最终代码验证）
+- [x] `npm run build` 成功（2026-09-17 修复后最终构建：1755 模块，dist 产物含路由级分包）
+
+### Task 20 验收补记（2026-09-17）
+
+- 走查明细：错误密码登录被拦并提示「用户名或密码错误」；admin 登录 → 仪表盘（2 菜单）；列表查询「张」238→1 且结果全命中、重置恢复 238；新增弹窗空提交显示 3 条必填报错且**零请求**、非法邮箱/手机号格式报错拦截、合法提交 238→239 首行可见；编辑改名/邮箱后 id 与 createTime 保留；删除确认框文案正确、确认后 239→238；登出清空 store 回 /login，手敲 /dashboard 被重定向带 redirect 参数；权限三项（user 菜单过滤/403/指令移除，admin 全放行）沿用当日 T11 走查证据；console 全程无 error
+- 修复：`useForm.submit()` 改为返回 `Promise<boolean>`（校验失败 false），UserListView.handleSubmit 加 `if (!valid) return` 门禁；登录页单段式调用不受影响
+- 清理：删除脚手架示例（HelloWorld/TheWelcome/WelcomeItem/icons×5/logo.svg）与历史死文件 views/Home/UserListView.vue；base.css 精简为纯 reset，正文文字色改由 main.css 暗色变量层明确提供
+- 类型严格度（TR-20.3）：手写代码零 any/零 ts-ignore；仅自动生成的 auto-imports.d.ts、components.d.ts 含 @ts-nocheck（插件产物）；request.ts 保留一处已归档的 `as AxiosResponse` 签名断言
 
 ---
 
