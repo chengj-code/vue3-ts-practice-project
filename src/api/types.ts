@@ -1,26 +1,2 @@
-export interface ApiResponse<T = unknown> {
-  code: number
-  message: string
-  data: T
-}
-
-export interface PageQuery {
-  page?: number
-  pageSize?: number
-}
-
-export interface PageResult<T> {
-  total: number
-  list: T[]
-  page: number
-  pageSize: number
-}
-
-export interface UserInfo {
-  id: number
-  username: string
-  nickname?: string
-  avatar?: string
-  roles: string[]
-  permissions: string[]
-}
+// 兼容出口：类型实体已迁至 src/types/api.ts，旧的 `@/api/types` 相对引用不受影响
+export * from '@/types/api'

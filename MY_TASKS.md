@@ -13,10 +13,10 @@
   - 涉及 TS：`ApiResponse<T>`、`AxiosRequestConfig` 扩展
   - 心得/问题：剥壳模式下出口泛型要写 `service.get<T, T>`（第二个泛型钉死返回类型 R，否则类型停留在 AxiosResponse 包装上，按类型写 `res.data.token` 编译通过但运行时 undefined）；拦截器 `return res.data` 需 `as AxiosResponse` 断言满足 axios 签名；401 处理加标记防并发重复跳转；`??` 与 `?:` 混用要加括号（优先级坑）。详见 jk-archive/patterns/axios-泛型请求层封装.md
 
-- [ ] **TS 类型设计**（穿插在各模块中，进行中）
-  - `src/types/api.ts`：`ApiResponse<T>`、`Paginated<T>`、`PageParams`
-  - `src/types/table.ts`：`TableColumn<T>`、`TableAction`
-  - 心得/问题：ApiResponse/PageResult/PageQuery/UserInfo 已落在 `src/api/types.ts`（暂未按计划拆到 src/types/，后续可调整）；T9 后 UserItem 等业务类型也在 api 层；table 相关类型（TableColumn/TableAction）仍待做，可在 T11 后统一整理
+- [x] **TS 类型设计**（2026-09-18 完成收尾）
+  - `src/types/api.ts`：`ApiResponse<T>`、`PageQuery`、`PageResult<T>`、`UserInfo`（从 api/types.ts 迁入，api/types.ts 保留 re-export 兼容旧引用，三个消费方零改动）
+  - `src/types/table.ts`：`TableColumn<T>`、`TableAction<T>`（UserListView 列/操作配置化渲染消费验证）
+  - 心得/问题：计划中的 Paginated<T>/PageParams 命名未采用——项目全链路已统一 PageResult/PageQuery，不引入第二套同义类型；TableColumn 的 prop 用 `keyof T & string` 锁定字段名（写错编译报错），插槽列可不传 prop；TableAction.permission 可选，模板消费时 `?? []` 对齐 v-permission 指令必填 string[] 的类型（空数组在 hasAny 中同为「不设限」语义，运行时等价）；配置数组（columns/rowActions）引用事件处理函数，必须声明在其后（TDZ）；空占位 src/types/index.ts 已删除
 
 ### 阶段 2：状态与登录
 

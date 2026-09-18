@@ -10,8 +10,13 @@
     <el-card class="console-card search-card">
       <el-form :inline="true" :model="query" class="search-form">
         <el-form-item label="姓名">
-          <el-input v-model="query.name" placeholder="请输入姓名" @keyup.enter="handleSearch" clearable
-            style="width: 200px" />
+          <el-input
+            v-model="query.name"
+            placeholder="请输入姓名"
+            @keyup.enter="handleSearch"
+            clearable
+            style="width: 200px"
+          />
         </el-form-item>
         <el-form-item label="状态">
           <el-select v-model="query.status" placeholder="全部" clearable style="width: 120px">
@@ -34,43 +39,74 @@
             <i class="title-bar" />
             用户列表
           </div>
-          <el-button type="primary" v-permission="['user:add']" @click="handleAdd">新增用户</el-button>
+          <el-button type="primary" v-permission="['user:add']" @click="handleAdd"
+            >新增用户</el-button
+          >
         </div>
       </template>
 
       <el-table :data="list" v-loading="listLoading" border stripe>
-        <el-table-column prop="id" label="ID" width="80" align="center" />
-        <el-table-column prop="name" label="姓名" width="120" />
-        <el-table-column prop="age" label="年龄" width="80" align="center" />
-        <el-table-column prop="email" label="邮箱" min-width="200" />
-        <el-table-column prop="phone" label="手机号" width="140" />
-        <el-table-column label="状态" width="100" align="center">
-          <template #default="{ row }">
-            <el-tag :type="row.status ? 'success' : 'danger'" effect="plain">
-              {{ row.status ? '启用' : '禁用' }}
+        <!-- 数据列：由 columns 配置驱动（TableColumn<UserItem>），prop 字段名编译期校验 -->
+        <el-table-column
+          v-for="col in columns"
+          :key="col.slot ?? col.prop"
+          :prop="col.prop"
+          :label="col.label"
+          :width="col.width"
+          :min-width="col.minWidth"
+          :align="col.align"
+          :fixed="col.fixed"
+        >
+          <!-- 插槽列：状态布尔转 el-tag -->
+          <template v-if="col.slot" #default="{ row }">
+            <el-tag
+              v-if="col.slot === 'status'"
+              :type="(row as UserItem).status ? 'success' : 'danger'"
+              effect="plain"
+            >
+              {{ (row as UserItem).status ? '启用' : '禁用' }}
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="createTime" label="创建时间" width="180" />
+        <!-- 操作列：按钮由 rowActions 配置驱动（TableAction<UserItem>），权限沿用 v-permission -->
         <el-table-column label="操作" width="160" align="center" fixed="right">
           <template #default="{ row }">
-            <el-button link type="primary" size="small" v-permission="['user:edit']"
-              @click="handleEdit(row as UserItem)">编辑</el-button>
-            <el-button link type="danger" size="small" v-permission="['user:delete']"
-              @click="handleDelete(row as UserItem)">删除</el-button>
+            <el-button
+              v-for="action in rowActions"
+              :key="action.key"
+              link
+              :type="action.type"
+              size="small"
+              v-permission="action.permission ?? []"
+              @click="action.onClick(row as UserItem)"
+            >
+              {{ action.label }}
+            </el-button>
           </template>
         </el-table-column>
       </el-table>
 
       <!-- 分页 -->
       <div class="pagination-wrapper">
-        <el-pagination v-model:current-page="page" v-model:page-size="pageSize" :page-sizes="[10, 20, 50, 100]"
-          :total="total" layout="total, sizes, prev, pager, next, jumper" background />
+        <el-pagination
+          v-model:current-page="page"
+          v-model:page-size="pageSize"
+          :page-sizes="[10, 20, 50, 100]"
+          :total="total"
+          layout="total, sizes, prev, pager, next, jumper"
+          background
+        />
       </div>
     </el-card>
 
     <!-- 新增/编辑弹窗（console-dialog 为 teleport 到 body 后的全局命名空间样式） -->
-    <el-dialog v-model="dialogVisible" :title="dialogTitle" width="480px" destroy-on-close class="console-dialog">
+    <el-dialog
+      v-model="dialogVisible"
+      :title="dialogTitle"
+      width="480px"
+      destroy-on-close
+      class="console-dialog"
+    >
       <el-form :model="form" :rules="formRules" ref="formRef" label-width="80px">
         <el-form-item label="姓名" prop="name">
           <el-input v-model="form.name" placeholder="请输入姓名" />
@@ -109,6 +145,7 @@ import {
 import { useTable } from '@/composables/useTable'
 import { useModal } from '@/composables/useModal'
 import { useForm } from '@/composables/useForm'
+import type { TableColumn, TableAction } from '@/types/table'
 
 // ========== 查询表单 ==========
 
@@ -260,6 +297,32 @@ const handleSubmit = async () => {
   if (!valid) return
   await confirm() // useModal: onConfirm(调 API) → 成功后 close
 }
+
+// ========== 表格列与操作配置（消费 src/types/table.ts 泛型类型） ==========
+// 注意：onClick 引用上方的事件处理函数，本区块必须声明在它们之后（TDZ）
+
+/** 数据列配置：普通列 + 状态插槽列统一排序驱动渲染 */
+const columns: TableColumn<UserItem>[] = [
+  { prop: 'id', label: 'ID', width: 80, align: 'center' },
+  { prop: 'name', label: '姓名', width: 120 },
+  { prop: 'age', label: '年龄', width: 80, align: 'center' },
+  { prop: 'email', label: '邮箱', minWidth: 200 },
+  { prop: 'phone', label: '手机号', width: 140 },
+  { label: '状态', width: 100, align: 'center', slot: 'status' },
+  { prop: 'createTime', label: '创建时间', width: 180 },
+]
+
+/** 操作列按钮配置：permission 交给 v-permission 指令做按钮级权限 */
+const rowActions: TableAction<UserItem>[] = [
+  { key: 'edit', label: '编辑', type: 'primary', permission: ['user:edit'], onClick: handleEdit },
+  {
+    key: 'delete',
+    label: '删除',
+    type: 'danger',
+    permission: ['user:delete'],
+    onClick: handleDelete,
+  },
+]
 </script>
 
 <style scoped lang="scss">
