@@ -5,9 +5,33 @@
 
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
-// init 从 echarts/core 拿（而非全量 echarts），渲染器/图表/组件已在 main.ts 全局 echarts.use 注册
-import { init, type EChartsType } from 'echarts/core'
+// init/use 从 echarts/core 拿（而非全量 echarts）
+// 注册放在本组件模块内而非 main.ts：模块首次被 import 时执行一次（use 幂等，所有实例共享），
+// echarts 因此只被打进消费方（仪表盘）的路由 chunk，入口主包不背这份体积
+import { init, use, type EChartsType } from 'echarts/core'
+import { BarChart, LineChart, PieChart } from 'echarts/charts'
+import {
+  TitleComponent,
+  TooltipComponent,
+  GridComponent,
+  LegendComponent,
+  DatasetComponent,
+} from 'echarts/components'
+import { CanvasRenderer } from 'echarts/renderers'
 import type { ECOption } from '@/types/echarts'
+
+// 按需注册（漏注册不报错，对应部分静默消失）；注册集与 types/echarts.ts 的 ECOption 组合对齐
+use([
+  BarChart,
+  LineChart,
+  PieChart,
+  TitleComponent,
+  TooltipComponent,
+  GridComponent,
+  LegendComponent,
+  DatasetComponent,
+  CanvasRenderer,
+])
 
 const props = withDefaults(
   defineProps<{
