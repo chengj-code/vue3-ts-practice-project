@@ -170,6 +170,22 @@ const { form, formRef, submit, loading } = useForm<LoginParams>({
   --font-mono: 'JetBrains Mono', 'Cascadia Code', Consolas, monospace;
   --font-body: 'PingFang SC', 'Microsoft YaHei', 'Segoe UI', sans-serif;
 
+  /* T18：登录页为固定暗色独立视觉页。全局切到亮色时 html.dark 消失、
+     EP 暗色变量失效——在这里锁回暗色值，避免「暗页亮组件」破相 */
+  color-scheme: dark;
+  --el-bg-color: #0f151c;
+  --el-bg-color-overlay: #131b24;
+  --el-fill-color-blank: #0f151c;
+  --el-fill-color: rgba(255, 255, 255, 0.045);
+  --el-fill-color-light: rgba(255, 255, 255, 0.03);
+  --el-text-color-primary: #e6edf3;
+  --el-text-color-regular: #aab8c6;
+  --el-border-color: #28313c;
+  --el-border-color-light: #1f2731;
+  --el-border-color-lighter: #1b222b;
+  --el-mask-color: rgba(3, 6, 10, 0.72);
+  --el-color-primary: #34d399;
+
   display: flex;
   height: 100%;
   min-height: 100vh;

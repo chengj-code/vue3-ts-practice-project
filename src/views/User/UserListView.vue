@@ -2,7 +2,6 @@
   <div class="user-list">
     <!-- 页头：控制台风格的模块标识 -->
     <div class="page-head">
-      <p class="page-eyebrow">SYSTEM // USER MANAGEMENT</p>
       <h2 class="page-title">用户管理</h2>
     </div>
 
@@ -337,14 +336,6 @@ const rowActions: TableAction<UserItem>[] = [
   padding: 2px 2px 4px;
 }
 
-.page-eyebrow {
-  margin: 0 0 6px;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 0.26em;
-  color: var(--console-accent);
-}
-
 .page-title {
   margin: 0;
   font-family: var(--font-display);
@@ -376,13 +367,13 @@ const rowActions: TableAction<UserItem>[] = [
 
 .btn-reset {
   --el-button-text-color: var(--console-text-2);
-  --el-button-bg-color: rgba(255, 255, 255, 0.03);
+  --el-button-bg-color: var(--console-fill);
   --el-button-border-color: var(--console-line-strong);
 
   &:hover {
     --el-button-text-color: var(--console-text-1);
-    --el-button-bg-color: rgba(255, 255, 255, 0.06);
-    --el-button-border-color: #3a4653;
+    --el-button-bg-color: var(--console-fill-hover);
+    --el-button-border-color: var(--console-line-strong);
   }
 }
 
@@ -409,7 +400,7 @@ const rowActions: TableAction<UserItem>[] = [
   height: 14px;
   background: var(--console-accent);
   border-radius: 2px;
-  box-shadow: 0 0 8px rgba(52, 211, 153, 0.7);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--console-accent) 70%, transparent);
 }
 
 /* ============ 表格 ============ */
@@ -418,10 +409,10 @@ const rowActions: TableAction<UserItem>[] = [
     /* 透明底，让卡片底色透出；表头/hover/边框单独定制 */
     --el-table-bg-color: transparent;
     --el-table-tr-bg-color: transparent;
-    --el-table-header-bg-color: #111a23;
+    --el-table-header-bg-color: var(--console-surface-2);
     --el-table-header-text-color: var(--console-text-2);
     --el-table-border-color: var(--console-line);
-    --el-table-row-hover-bg-color: rgba(52, 211, 153, 0.06);
+    --el-table-row-hover-bg-color: color-mix(in srgb, var(--console-accent) 6%, transparent);
     --el-table-fixed-box-shadow: -8px 0 12px -8px rgba(0, 0, 0, 0.6);
 
     font-size: 13px;
@@ -436,9 +427,9 @@ const rowActions: TableAction<UserItem>[] = [
     letter-spacing: 0.04em;
   }
 
-  /* 斑马纹：暗色下只提亮一点点 */
+  /* 斑马纹：两主题各有一个极淡的填充档 */
   :deep(.el-table--striped .el-table__body tr.el-table__row--striped td.el-table__cell) {
-    background: rgba(255, 255, 255, 0.018);
+    background: var(--console-stripe);
   }
 
   :deep(.el-table__inner-wrapper::before) {
@@ -458,15 +449,15 @@ const rowActions: TableAction<UserItem>[] = [
 <style lang="scss">
 .console-dialog {
   padding: 4px;
-  background: #131b24;
-  border: 1px solid #1e2730;
+  background: var(--console-surface-2);
+  border: 1px solid var(--console-line);
   border-radius: 14px;
-  box-shadow: 0 32px 80px -24px rgba(0, 0, 0, 0.85);
+  box-shadow: 0 32px 80px -24px rgba(0, 0, 0, 0.45);
 
   .el-dialog__header {
     margin-right: 0;
     padding: 18px 22px;
-    border-bottom: 1px solid #1e2730;
+    border-bottom: 1px solid var(--console-line);
   }
 
   .el-dialog__title {

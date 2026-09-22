@@ -89,7 +89,7 @@
 - [ ] T15 Excel 导入导出（xlsx）
 - [ ] T16 WebSocket 实时通信（心跳、断线重连）
 - [ ] T17 高级交互（拖拽排序 sortablejs + 虚拟滚动）
-- [ ] T18 主题切换（明暗 + 主题色，CSS 变量）
+- [x] T18 主题切换（明暗 + 主题色，CSS 变量；2026-09-22 完成并走查，踩坑记录见下方补记与 jk-archive/sessions/2026-09-22_T18主题切换.md）
 - [ ] T19 国际化 i18n（vue-i18n，中英切换）
 
 ## 三、最终验收
@@ -104,6 +104,14 @@
 - 修复：`useForm.submit()` 改为返回 `Promise<boolean>`（校验失败 false），UserListView.handleSubmit 加 `if (!valid) return` 门禁；登录页单段式调用不受影响
 - 清理：删除脚手架示例（HelloWorld/TheWelcome/WelcomeItem/icons×5/logo.svg）与历史死文件 views/Home/UserListView.vue；base.css 精简为纯 reset，正文文字色改由 main.css 暗色变量层明确提供
 - 类型严格度（TR-20.3）：手写代码零 any/零 ts-ignore；仅自动生成的 auto-imports.d.ts、components.d.ts 含 @ts-nocheck（插件产物）；request.ts 保留一处已归档的 `as AxiosResponse` 签名断言
+
+### T12 + T18 补记（2026-09-22）
+
+- **T12 仪表盘**：EChart 封装组件（init/dispose/ResizeObserver/notMerge）+ echarts 按需注册；perf 提交把注册从 main.ts 挪进组件后**首屏主包 gzip 222KB → 22KB**（echarts 归入 Dashboard 路由 chunk）。坑：漏注册组件静默不渲染；全量 `import * as echarts` 把单 chunk 撑到 532KB
+- **T18 主题**：品牌色唯一源头 `--brand-color` + `color-mix()` 动态派生 EP 主色全套与 console-accent；FOUC 用 index.html 同步脚本（读 pinia persist 的 localStorage）；App.vue 两个 watchEffect 同步 class 与 CSS 变量；canvas 图表色值按主题在 computed 重算联动
+- **本次最大收获——CSS 特异度双坑**：① EP 按需样式分 chunk 加载，裸 `:root` 覆盖其变量会被同特异度后加载的 EP 默认值打回（按钮变 EP 蓝）；② 修复时只给亮色块提 `:root:root`(0,2,0) 又反压了 `html.dark`(0,1,1) 造成半亮半暗。正确姿势：亮色 `:root:root` + 暗色 `:root.dark`（同级、源顺序在后）
+- **按钮文字色经验**：方案取决于底色明度档——暗色主色（提亮档）配深字；亮色主色选 600 档色值配 EP 白字
+- 固定暗色页（登录/403）局部锁 EP 暗色变量，防「暗页亮组件」；硬编码色值全项目清查换成变量/color-mix（30+ 处）
 
 ---
 

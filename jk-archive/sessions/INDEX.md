@@ -11,3 +11,5 @@
 | useTable 查询失效与重复请求修复 | 已完成 | vue3, composable, useTable, watch, 防重复请求, element-plus, typescript | 2026-09-17 | [2026-09-17_useTable查询失效与重复请求.md](./2026-09-17_useTable查询失效与重复请求.md) |
 | v-permission 按钮级权限指令（T11 第 4 步；含第 5 步菜单过滤与第 6 步双账号走查收尾） | 已完成 | vue3, 自定义指令, 权限, v-permission, element-plus, typescript | 2026-09-17 | [2026-09-17_v-permission按钮级权限指令.md](./2026-09-17_v-permission按钮级权限指令.md) |
 | Task 20 最终验收 + useForm 校验门禁 P0 bug 修复 | 已完成 | vue3, typescript, composable, useForm, useModal, 表单校验, 走查, 验收, vite构建, element-plus | 2026-09-17 | [2026-09-17_task20验收与useForm校验门禁修复.md](./2026-09-17_task20验收与useForm校验门禁修复.md) |
+| T12 仪表盘 ECharts 数据可视化 | 已完成 | vue3, echarts, 数据可视化, 组件封装, ResizeObserver, 按需引入, mock, typescript | 2026-09-18 | [2026-09-18_T12仪表盘ECharts.md](./2026-09-18_T12仪表盘ECharts.md) |
+| T18 主题切换（明暗 + 品牌色） | 已完成 | vue3, css变量, 主题切换, element-plus, color-mix, 特异度, FOUC, pinia, typescript | 2026-09-22 | [2026-09-22_T18主题切换.md](./2026-09-22_T18主题切换.md) |

@@ -64,12 +64,30 @@ const goBack = () => {
   --accent-bright: #6ee7b7;
   --accent-deep: #052018;
   --danger: #f87171;
+  --fill: rgba(255, 255, 255, 0.025);
+  --fill-hover: rgba(255, 255, 255, 0.04);
   --text-1: #e6edf3;
   --text-2: #93a1b3;
   --text-3: #5d6b7c;
   --font-display: 'Chakra Petch', 'PingFang SC', 'Microsoft YaHei', sans-serif;
   --font-mono: 'JetBrains Mono', 'Cascadia Code', Consolas, monospace;
   --font-body: 'PingFang SC', 'Microsoft YaHei', 'Segoe UI', sans-serif;
+
+  /* T18：本页为固定暗色独立视觉页。全局切到亮色时 html.dark 消失、
+     EP 暗色变量失效——在这里锁回暗色值，避免「暗页亮组件」破相 */
+  color-scheme: dark;
+  --el-bg-color: #0f151c;
+  --el-bg-color-overlay: #131b24;
+  --el-fill-color-blank: #0f151c;
+  --el-fill-color: rgba(255, 255, 255, 0.045);
+  --el-fill-color-light: rgba(255, 255, 255, 0.03);
+  --el-text-color-primary: #e6edf3;
+  --el-text-color-regular: #aab8c6;
+  --el-border-color: #28313c;
+  --el-border-color-light: #1f2731;
+  --el-border-color-lighter: #1b222b;
+  --el-mask-color: rgba(3, 6, 10, 0.72);
+  --el-color-primary: #34d399;
 
   position: relative;
   display: grid;
@@ -128,7 +146,7 @@ const goBack = () => {
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  filter: drop-shadow(0 0 34px rgba(52, 211, 153, 0.22));
+  filter: drop-shadow(0 0 34px color-mix(in srgb, var(--accent) 22%, transparent));
   animation: rise 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.08s both;
 }
 
@@ -152,7 +170,7 @@ const goBack = () => {
   gap: 8px;
   padding: 12px 16px;
   border-bottom: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.025);
+  background: var(--fill);
 
   .bar-dot {
     width: 10px;
@@ -252,7 +270,7 @@ const goBack = () => {
   &:focus {
     color: var(--text-1);
     border-color: rgba(148, 163, 184, 0.45);
-    background: rgba(255, 255, 255, 0.04);
+    background: var(--fill-hover);
   }
 }
 
@@ -267,7 +285,7 @@ const goBack = () => {
   border-color: var(--accent);
   color: var(--accent-deep);
   border-radius: 10px;
-  box-shadow: 0 10px 28px -10px rgba(52, 211, 153, 0.55);
+  box-shadow: 0 10px 28px -10px color-mix(in srgb, var(--accent) 55%, transparent);
   transition:
     background 0.2s ease,
     box-shadow 0.2s ease,
@@ -278,7 +296,7 @@ const goBack = () => {
     background: var(--accent-bright);
     border-color: var(--accent-bright);
     color: var(--accent-deep);
-    box-shadow: 0 12px 32px -10px rgba(52, 211, 153, 0.7);
+    box-shadow: 0 12px 32px -10px color-mix(in srgb, var(--accent) 70%, transparent);
     transform: translateY(-1px);
   }
 

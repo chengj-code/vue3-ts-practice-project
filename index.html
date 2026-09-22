@@ -1,9 +1,28 @@
 <!DOCTYPE html>
-<html lang="zh-CN" class="dark">
+<html lang="zh-CN">
   <head>
     <meta charset="UTF-8">
     <link rel="icon" href="/favicon.ico">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!--
+      主题防闪白（FOUC）：必须在 Vue 挂载前同步执行——
+      否则暗色用户刷新时会先看到白屏再闪回暗色。
+      pinia-plugin-persistedstate 以 store id（'app'）为 localStorage key、JSON 为值；
+      这里直接读它，与 store 初始值保持同一默认（dark），框架启动后 App.vue 的 watchEffect 接管。
+    -->
+    <script>
+      ;(function () {
+        try {
+          var s = JSON.parse(localStorage.getItem('app') || '{}')
+          if (s.theme !== 'light') document.documentElement.classList.add('dark')
+          if (typeof s.primaryColor === 'string' && s.primaryColor) {
+            document.documentElement.style.setProperty('--brand-color', s.primaryColor)
+          }
+        } catch (e) {
+          /* localStorage 不可用时走默认暗色 */
+        }
+      })()
+    </script>
     <!-- 暗夜控制台：展示字 Chakra Petch（科技几何感）+ 等宽字 JetBrains Mono（终端/标签） -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

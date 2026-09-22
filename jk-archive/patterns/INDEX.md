@@ -10,3 +10,5 @@
 | declare module 在脚本文件中顶掉整个包类型（env.d.ts 模块增强） | typescript, declare-module, 模块增强, 声明合并, env.d.ts, vue-router | 2026-09-16 | sessions/2026-09-16_权限控制-类型与路由层.md | [declare-module类型顶包与声明合并.md](./declare-module类型顶包与声明合并.md) |
 | useTable watch 触发语义与查询防重（条件 fetch 模式） | vue3, composable, useTable, watch, 防重复请求, element-plus, 分页 | 2026-09-17 | sessions/2026-09-17_useTable查询失效与重复请求.md | [useTable-watch触发语义与查询防重.md](./useTable-watch触发语义与查询防重.md) |
 | Vue3 自定义指令封装（v-permission 模板） | vue3, 自定义指令, 权限, typescript, directive | 2026-09-17 | sessions/2026-09-17_v-permission按钮级权限指令.md | [vue3-自定义指令封装.md](./vue3-自定义指令封装.md) |
+| ECharts 按需注册与路由级分包（封装组件） | echarts, 按需引入, tree-shaking, 组件封装, ResizeObserver, 性能优化, vue3 | 2026-09-22 | sessions/2026-09-18_T12仪表盘ECharts.md | [echarts按需注册与路由分包.md](./echarts按需注册与路由分包.md) |
+| CSS 变量双主题体系（color-mix 派生 + FOUC + 特异度竞争） | css变量, 主题切换, element-plus, color-mix, 特异度, FOUC, 暗色模式 | 2026-09-22 | sessions/2026-09-22_T18主题切换.md | [CSS变量双主题-color-mix派生与特异度.md](./CSS变量双主题-color-mix派生与特异度.md) |

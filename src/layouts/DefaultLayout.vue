@@ -18,11 +18,6 @@
           </el-menu-item>
         </template>
       </el-menu>
-
-      <div v-show="!isCollapse" class="aside-footer">
-        <span class="footer-dot" />
-        DEV BUILD · 2026.09
-      </div>
     </el-aside>
 
     <el-container class="layout-body">
@@ -32,9 +27,30 @@
           <el-icon class="collapse-btn" @click="toggleCollapse">
             <component :is="isCollapse ? Expand : Fold" />
           </el-icon>
-          <span class="header-crumb">// {{ $route.meta.title }}</span>
+          <span class="header-crumb">{{ $route.meta.title }}</span>
         </div>
         <div class="header-right">
+          <!-- 明暗切换：图标表状态（亮色显示月亮=点它去暗色） -->
+          <el-tooltip :content="isDark ? '切换为亮色模式' : '切换为暗色模式'" placement="bottom">
+            <el-icon class="header-action" @click="toggleTheme">
+              <component :is="isDark ? Sunny : Moon" />
+            </el-icon>
+          </el-tooltip>
+          <!-- 品牌色色板：复用 el-dropdown 的 command 模式（与用户菜单同款），command 传色值 -->
+          <el-dropdown trigger="click" @command="onBrandCommand">
+            <el-icon class="header-action"><Brush /></el-icon>
+            <template #dropdown>
+              <el-dropdown-menu>
+                <el-dropdown-item v-for="c in BRAND_PRESETS" :key="c.value" :command="c.value">
+                  <span class="color-dot" :style="{ background: c.value }" />
+                  {{ c.label }}
+                  <el-icon v-if="primaryColor === c.value" class="color-check">
+                    <Check />
+                  </el-icon>
+                </el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
           <el-dropdown @command="onCommand">
             <span class="header-user">
               <span class="user-avatar">{{
@@ -76,21 +92,33 @@ import { useAppStore } from '@/stores/app'
 import { useUserStore } from '@/stores/user'
 import {
   ArrowDown,
+  Brush,
+  Check,
   Expand,
   Fold,
+  Moon,
   More,
   Odometer,
+  Sunny,
   SwitchButton,
   User,
 } from '@element-plus/icons-vue'
 import { usePermission } from '@/composables/usePermission'
+import { BRAND_PRESETS } from '@/stores/app'
 
 const userStore = useUserStore()
 const appStore = useAppStore()
 const { hasRole } = usePermission()
 const { userInfo } = storeToRefs(userStore)
-const { isCollapse } = storeToRefs(appStore)
-const { toggleCollapse } = appStore
+const { isCollapse, theme, primaryColor } = storeToRefs(appStore)
+const { toggleCollapse, toggleTheme, setPrimaryColor } = appStore
+
+// 暗色为 true：图标表「可前往的状态」，亮色显示月亮、暗色显示太阳
+const isDark = computed(() => theme.value === 'dark')
+
+const onBrandCommand = (color: string) => {
+  setPrimaryColor(color)
+}
 
 const layoutRoutes = computed(() =>
   (router.options.routes.find((item) => item.name === 'layout')?.children ?? [])
@@ -122,7 +150,12 @@ const onCommand = (command: string) => {
   flex-direction: column;
   overflow-x: hidden;
   background:
-    radial-gradient(420px 320px at 110% -8%, rgba(52, 211, 153, 0.08), transparent 60%), #0c1218;
+    radial-gradient(
+      420px 320px at 110% -8%,
+      color-mix(in srgb, var(--console-accent) 8%, transparent),
+      transparent 60%
+    ),
+    var(--console-bg);
   border-right: 1px solid var(--console-line);
   transition: width 0.3s;
 }
@@ -158,7 +191,7 @@ const onCommand = (command: string) => {
   flex: 0 0 28px;
   width: 28px;
   height: 28px;
-  border: 1px solid rgba(52, 211, 153, 0.55);
+  border: 1px solid color-mix(in srgb, var(--console-accent) 55%, transparent);
   border-radius: 8px;
 
   span {
@@ -166,7 +199,7 @@ const onCommand = (command: string) => {
     inset: 6px;
     background: var(--console-accent);
     border-radius: 2px;
-    box-shadow: 0 0 10px rgba(52, 211, 153, 0.6);
+    box-shadow: 0 0 10px color-mix(in srgb, var(--console-accent) 60%, transparent);
   }
 }
 
@@ -199,7 +232,7 @@ const onCommand = (command: string) => {
   /* 覆盖 el-menu 的组件级配色变量 */
   --el-menu-bg-color: transparent;
   --el-menu-text-color: var(--console-text-2);
-  --el-menu-hover-bg-color: rgba(52, 211, 153, 0.08);
+  --el-menu-hover-bg-color: color-mix(in srgb, var(--console-accent) 8%, transparent);
   --el-menu-active-color: var(--console-accent);
 
   :deep(.el-menu-item) {
@@ -223,13 +256,13 @@ const onCommand = (command: string) => {
 
   :deep(.el-menu-item:hover) {
     color: var(--console-text-1);
-    background: rgba(52, 211, 153, 0.08);
+    background: color-mix(in srgb, var(--console-accent) 8%, transparent);
   }
 
   :deep(.el-menu-item.is-active) {
     font-weight: 600;
     color: var(--console-accent);
-    background: rgba(52, 211, 153, 0.12);
+    background: color-mix(in srgb, var(--console-accent) 12%, transparent);
     box-shadow: inset 2px 0 0 var(--console-accent);
   }
 }
@@ -253,7 +286,7 @@ const onCommand = (command: string) => {
     height: 6px;
     border-radius: 50%;
     background: var(--console-accent);
-    box-shadow: 0 0 8px rgba(52, 211, 153, 0.8);
+    box-shadow: 0 0 8px color-mix(in srgb, var(--console-accent) 80%, transparent);
     animation: footer-breathe 2.6s ease-in-out infinite;
   }
 }
@@ -265,7 +298,7 @@ const onCommand = (command: string) => {
   justify-content: space-between;
   height: 60px;
   padding: 0 22px;
-  background: rgba(10, 15, 21, 0.82);
+  background: var(--console-surface);
   border-bottom: 1px solid var(--console-line);
   backdrop-filter: blur(10px);
 }
@@ -276,7 +309,8 @@ const onCommand = (command: string) => {
   gap: 14px;
 }
 
-.collapse-btn {
+.collapse-btn,
+.header-action {
   /* el-icon 天生 width/height:1em，border-box 下加 padding 会把 content
      吃成 2px、flex 把 svg 压扁；放开固定尺寸让按钮=图标+padding 的大热区 */
   width: auto;
@@ -292,8 +326,23 @@ const onCommand = (command: string) => {
 
   &:hover {
     color: var(--console-accent);
-    background: rgba(52, 211, 153, 0.1);
+    background: color-mix(in srgb, var(--console-accent) 10%, transparent);
   }
+}
+
+/* 品牌色色板菜单里的色点与选中态 */
+.color-dot {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  margin-right: 6px;
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px var(--console-line-strong) inset;
+}
+
+.color-check {
+  margin-left: auto;
+  color: var(--console-accent);
 }
 
 .header-crumb {
@@ -302,9 +351,9 @@ const onCommand = (command: string) => {
   letter-spacing: 0.04em;
   color: var(--console-text-3);
 
-  &::first-letter {
-    color: var(--console-accent);
-  }
+  // &::first-letter {
+  //   color: var(--console-accent);
+  // }
 }
 
 .header-user {
@@ -318,7 +367,7 @@ const onCommand = (command: string) => {
   outline: none;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.04);
+    background: var(--console-fill);
   }
 }
 
@@ -333,7 +382,7 @@ const onCommand = (command: string) => {
   color: var(--console-accent-deep);
   background: var(--console-accent);
   border-radius: 9px;
-  box-shadow: 0 4px 14px -4px rgba(52, 211, 153, 0.6);
+  box-shadow: 0 4px 14px -4px color-mix(in srgb, var(--console-accent) 60%, transparent);
 }
 
 .user-meta {
@@ -366,7 +415,11 @@ const onCommand = (command: string) => {
   position: relative;
   padding: 22px;
   background:
-    radial-gradient(900px 420px at 88% -10%, rgba(52, 211, 153, 0.05), transparent 60%),
+    radial-gradient(
+      900px 420px at 88% -10%,
+      color-mix(in srgb, var(--console-accent) 5%, transparent),
+      transparent 60%
+    ),
     var(--console-bg);
 
   /* 内容浮在网格纹理之上 */

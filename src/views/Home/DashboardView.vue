@@ -3,7 +3,6 @@
     <!-- 页头：控制台风格模块标识；右侧 ADMIN 徽标挂 v-permission，保留 T11 按钮级权限测试载体 -->
     <div class="page-head">
       <div>
-        <p class="page-eyebrow">SYSTEM // DASHBOARD</p>
         <h2 class="page-title">仪表盘</h2>
       </div>
       <el-tag v-permission="['admin']" type="success" effect="plain">ADMIN</el-tag>
@@ -45,6 +44,7 @@
 import { computed, onMounted, ref } from 'vue'
 import EChart from '@/components/EChart.vue'
 import type { ECOption } from '@/types/echarts'
+import { useAppStore } from '@/stores/app'
 import {
   getAgeDistributionApi,
   getDashboardStatsApi,
@@ -97,10 +97,25 @@ const statCards = computed(() => [
 
 // ========== 图表 option 组装（computed：数据 ref 变化 → 新 option → EChart watch 自动更新） ==========
 
-// canvas 内文字不继承 CSS 变量，取与暗色主题同族的固定色值
-const AXIS_COLOR = '#8b9bb0'
-const SPLIT_COLOR = 'rgba(255, 255, 255, 0.06)'
-const ACCENT = '#34d399'
+const appStore = useAppStore()
+const isDark = computed(() => appStore.theme === 'dark')
+
+// canvas 内文字不继承 CSS 变量——色值按主题在 JS 侧重算，theme 变化
+// → 这些 computed 重跑 → option 重算 → EChart 的 watch 自动 setOption
+const AXIS_COLOR = computed(() => (isDark.value ? '#8b9bb0' : '#5a6b80'))
+const SPLIT_COLOR = computed(() =>
+  isDark.value ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.06)',
+)
+// 主色跟品牌色走（store 换色 → 图表同步变色）
+const ACCENT = computed(() => appStore.primaryColor)
+
+// brand hex → rgba 小工具：透明度版用于面积填充等需要 alpha 的场景
+const hexToRgba = (hex: string, alpha: number) => {
+  const r = parseInt(hex.slice(1, 3), 16)
+  const g = parseInt(hex.slice(3, 5), 16)
+  const b = parseInt(hex.slice(5, 7), 16)
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`
+}
 
 // 折线：近 7 天新增趋势
 const trendOption = computed<ECOption>(() => ({
@@ -110,13 +125,13 @@ const trendOption = computed<ECOption>(() => ({
     type: 'category',
     boundaryGap: false,
     data: trend.value.map((i) => i.date),
-    axisLabel: { color: AXIS_COLOR },
-    axisLine: { lineStyle: { color: SPLIT_COLOR } },
+    axisLabel: { color: AXIS_COLOR.value },
+    axisLine: { lineStyle: { color: SPLIT_COLOR.value } },
   },
   yAxis: {
     type: 'value',
-    axisLabel: { color: AXIS_COLOR },
-    splitLine: { lineStyle: { color: SPLIT_COLOR } },
+    axisLabel: { color: AXIS_COLOR.value },
+    splitLine: { lineStyle: { color: SPLIT_COLOR.value } },
   },
   series: [
     {
@@ -124,9 +139,9 @@ const trendOption = computed<ECOption>(() => ({
       type: 'line',
       smooth: true,
       data: trend.value.map((i) => i.count),
-      itemStyle: { color: ACCENT },
-      lineStyle: { color: ACCENT, width: 2 },
-      areaStyle: { color: 'rgba(52, 211, 153, 0.12)' },
+      itemStyle: { color: ACCENT.value },
+      lineStyle: { color: ACCENT.value, width: 2 },
+      areaStyle: { color: hexToRgba(ACCENT.value, 0.12) },
     },
   ],
 }))
@@ -138,14 +153,14 @@ const ageOption = computed<ECOption>(() => ({
   xAxis: {
     type: 'category',
     data: ageDist.value.map((i) => i.range),
-    axisLabel: { color: AXIS_COLOR },
-    axisLine: { lineStyle: { color: SPLIT_COLOR } },
+    axisLabel: { color: AXIS_COLOR.value },
+    axisLine: { lineStyle: { color: SPLIT_COLOR.value } },
     axisTick: { alignWithLabel: true },
   },
   yAxis: {
     type: 'value',
-    axisLabel: { color: AXIS_COLOR },
-    splitLine: { lineStyle: { color: SPLIT_COLOR } },
+    axisLabel: { color: AXIS_COLOR.value },
+    splitLine: { lineStyle: { color: SPLIT_COLOR.value } },
   },
   series: [
     {
@@ -153,7 +168,7 @@ const ageOption = computed<ECOption>(() => ({
       type: 'bar',
       barWidth: '45%',
       data: ageDist.value.map((i) => i.count),
-      itemStyle: { color: ACCENT, borderRadius: [4, 4, 0, 0] },
+      itemStyle: { color: ACCENT.value, borderRadius: [4, 4, 0, 0] },
     },
   ],
 }))
@@ -161,7 +176,7 @@ const ageOption = computed<ECOption>(() => ({
 // 饼图：启用/禁用占比（环形）
 const statusOption = computed<ECOption>(() => ({
   tooltip: { trigger: 'item' },
-  legend: { bottom: 0, textStyle: { color: AXIS_COLOR } },
+  legend: { bottom: 0, textStyle: { color: AXIS_COLOR.value } },
   series: [
     {
       name: '状态占比',
@@ -169,9 +184,14 @@ const statusOption = computed<ECOption>(() => ({
       radius: ['45%', '68%'],
       center: ['50%', '44%'],
       data: statusDist.value,
-      label: { color: AXIS_COLOR, formatter: '{b}: {c}' },
-      itemStyle: { borderRadius: 6, borderColor: '#131b24', borderWidth: 2 },
-      color: [ACCENT, '#f87171'],
+      label: { color: AXIS_COLOR.value, formatter: '{b}: {c}' },
+      itemStyle: {
+        borderRadius: 6,
+        // 描边取卡片底色，亮色下自动切白
+        borderColor: isDark.value ? '#131b24' : '#ffffff',
+        borderWidth: 2,
+      },
+      color: [ACCENT.value, '#f87171'],
     },
   ],
 }))
@@ -190,14 +210,6 @@ const statusOption = computed<ECOption>(() => ({
   align-items: center;
   justify-content: space-between;
   padding: 2px 2px 4px;
-}
-
-.page-eyebrow {
-  margin: 0 0 6px;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 0.26em;
-  color: var(--console-accent);
 }
 
 .page-title {
@@ -273,7 +285,7 @@ const statusOption = computed<ECOption>(() => ({
   height: 13px;
   background: var(--console-accent);
   border-radius: 2px;
-  box-shadow: 0 0 8px rgba(52, 211, 153, 0.7);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--console-accent) 70%, transparent);
 }
 
 /* 窄屏降级：统计卡 2 列、图表单列 */

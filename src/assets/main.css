@@ -30,29 +30,63 @@ a,
 }
 
 /* ============================================================
-   暗夜控制台主题层（Element Plus 暗色变量 + 翡翠绿品牌覆盖）
-   依赖 main.ts 中先引入的 element-plus/theme-chalk/dark/css-vars.css
-   T18 做明暗切换时：切换 <html> 的 dark class 即可，浅色走 EP 默认
+   双主题层（T18：亮色为 :root:root 默认，暗色集中在 :root.dark）
+   - 依赖 main.ts 先引入的 element-plus/theme-chalk/dark/css-vars.css
+     （html.dark 下提供 EP 暗色基准值，本文件在其后加载、同特异度覆盖生效）
+   - class 切换由 App.vue 的 watchEffect + index.html 的 FOUC 脚本共同维护
+   - 品牌色唯一源头是 --brand-color（JS 可运行时修改）：
+     EP 主色全套 + console-accent 均用 CSS color-mix 派生，改一处全局联动
    ============================================================ */
-:root {
-  --console-bg: #0a0f15;
-  --console-surface: #0f151c;
-  --console-surface-2: #131b24;
-  --console-line: #1e2730;
-  --console-line-strong: #2b3540;
-  --console-accent: #34d399;
-  --console-accent-bright: #5eead4;
-  --console-accent-deep: #052018;
-  --console-text-1: #e6edf3;
-  --console-text-2: #93a1b3;
-  --console-text-3: #5d6b7c;
+/* 双 :root 提升特异度(0,2,0)：EP 按需样式分 chunk 加载，其 :root(0,1,0) 的
+   --el-color-primary 默认蓝会晚于本文件出现，同特异度靠顺序会输给它。
+   注意：暗色块必须用同级或更高的 :root.dark(0,2,0)，否则亮色块会反压 html.dark(0,1,1) */
+:root:root {
+  /* 品牌色源头：色板切换只改这一个变量（600 档，保证亮色白字对比） */
+  --brand-color: #059669;
+
+  /* EP 主色派生（亮色：light-N 向白混合做浅层次，dark-2 向黑加深做 hover） */
+  --el-color-primary: var(--brand-color);
+  --el-color-primary-light-3: color-mix(in srgb, var(--brand-color) 70%, white);
+  --el-color-primary-light-5: color-mix(in srgb, var(--brand-color) 50%, white);
+  --el-color-primary-light-7: color-mix(in srgb, var(--brand-color) 30%, white);
+  --el-color-primary-light-8: color-mix(in srgb, var(--brand-color) 20%, white);
+  --el-color-primary-light-9: color-mix(in srgb, var(--brand-color) 10%, white);
+  --el-color-primary-dark-2: color-mix(in srgb, var(--brand-color) 80%, black);
+
+  /* 亮色控制台变量 */
+  --console-bg: #f3f6f9;
+  --console-surface: #ffffff;
+  --console-surface-2: #f7fafc;
+  --console-line: #e2e8f0;
+  --console-line-strong: #cbd5e1;
+  --console-accent: var(--brand-color);
+  --console-accent-bright: color-mix(in srgb, var(--brand-color) 60%, white);
+  --console-accent-deep: color-mix(in srgb, var(--brand-color) 80%, black);
+  --console-text-1: #1a2332;
+  --console-text-2: #5a6b80;
+  --console-text-3: #94a3b8;
+  --console-fill: rgba(0, 0, 0, 0.03);
+  --console-fill-hover: rgba(0, 0, 0, 0.06);
+  --console-stripe: rgba(0, 0, 0, 0.018);
+
   --font-display: 'Chakra Petch', 'PingFang SC', 'Microsoft YaHei', sans-serif;
   --font-mono: 'JetBrains Mono', 'Cascadia Code', Consolas, monospace;
   --font-body: 'PingFang SC', 'Microsoft YaHei', 'Segoe UI', sans-serif;
 }
 
-html.dark {
+/* 暗色变量块：与亮色块 :root:root 同特异度(0,2,0)，靠源顺序在后取胜；
+   对 EP 暗色基准(html.dark 0,1,1)保持特异度压制 */
+:root.dark {
   color-scheme: dark;
+
+  /* 暗色主色：brand 向白提亮一档（暗底上更醒目），light-N 向深底混合做层次 */
+  --el-color-primary: color-mix(in srgb, var(--brand-color) 85%, white);
+  --el-color-primary-light-3: color-mix(in srgb, var(--brand-color) 62%, #0f151c);
+  --el-color-primary-light-5: color-mix(in srgb, var(--brand-color) 42%, #0f151c);
+  --el-color-primary-light-7: color-mix(in srgb, var(--brand-color) 26%, #0f151c);
+  --el-color-primary-light-8: color-mix(in srgb, var(--brand-color) 18%, #0f151c);
+  --el-color-primary-light-9: color-mix(in srgb, var(--brand-color) 11%, #0f151c);
+  --el-color-primary-dark-2: color-mix(in srgb, var(--brand-color) 75%, white);
 
   /* 面板/底色/文本/边框：深黑蓝灰体系 */
   --el-bg-color: #0f151c;
@@ -73,47 +107,53 @@ html.dark {
   --el-card-bg-color: #0f151c;
   --el-card-border-color: #1e2730;
 
-  /* 品牌翡翠绿色阶（替代 EP 默认蓝；light-N 为向深底混合，dark-2 为提亮态） */
-  --el-color-primary: #34d399;
-  --el-color-primary-light-3: #2a9d74;
-  --el-color-primary-light-5: #21755a;
-  --el-color-primary-light-7: #1a4e41;
-  --el-color-primary-light-8: #163b34;
-  --el-color-primary-light-9: #122726;
-  --el-color-primary-dark-2: #5eead4;
+  /* 暗夜控制台变量（原 :root 暗色值整体搬迁至此） */
+  --console-bg: #0a0f15;
+  --console-surface: #0f151c;
+  --console-surface-2: #131b24;
+  --console-line: #1e2730;
+  --console-line-strong: #2b3540;
+  --console-accent: var(--el-color-primary);
+  --console-accent-bright: color-mix(in srgb, var(--el-color-primary) 70%, white);
+  --console-accent-deep: color-mix(in srgb, var(--el-color-primary) 55%, black);
+  --console-text-1: #e6edf3;
+  --console-text-2: #93a1b3;
+  --console-text-3: #5d6b7c;
+  --console-fill: rgba(255, 255, 255, 0.03);
+  --console-fill-hover: rgba(255, 255, 255, 0.06);
+  --console-stripe: rgba(255, 255, 255, 0.018);
 }
 
-/* 全局正文字体（覆盖 base.css 的 Inter 栈） */
+/* 全局正文字体（覆盖 base.css 的 Inter 栈）+ 底色/文字随主题走，切换带过渡 */
 body {
   font-family: var(--font-body);
-}
-
-html.dark body {
-  color: var(--el-text-color-regular);
   background-color: var(--console-bg);
+  color: var(--console-text-2);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* 实心主按钮/分页选中：亮翡翠底必须配深色文字，白字对比不足 */
+/* 实心主按钮/分页选中：仅暗色配深字——暗色主色是提亮档，白字刺眼；
+   亮色主色为 600 档品牌色，走 EP 惯例白字（对比与 EP 默认蓝同档） */
 /* :not(.is-link/.is-text) 必须加：否则特异度盖过 EP 链接按钮规则，表格链接文字会变黑不可见 */
-html.dark .el-button--primary:not(.is-link):not(.is-text),
-html.dark .el-button--primary:not(.is-link):not(.is-text):hover,
-html.dark .el-button--primary:not(.is-link):not(.is-text):focus,
-html.dark .el-pagination.is-background .el-pager li.is-active {
+:root.dark .el-button--primary:not(.is-link):not(.is-text),
+:root.dark .el-button--primary:not(.is-link):not(.is-text):hover,
+:root.dark .el-button--primary:not(.is-link):not(.is-text):focus,
+:root.dark .el-pagination.is-background .el-pager li.is-active {
   color: var(--console-accent-deep);
 }
 
-/* 暗色滚动条 */
-html.dark ::-webkit-scrollbar {
+/* 滚动条（亮色轻灰，暗色深灰） */
+::-webkit-scrollbar {
   width: 10px;
   height: 10px;
 }
 
-html.dark ::-webkit-scrollbar-track {
+::-webkit-scrollbar-track {
   background: transparent;
 }
 
-html.dark ::-webkit-scrollbar-thumb {
-  background: #28313c;
+::-webkit-scrollbar-thumb {
+  background: var(--console-line-strong);
   border: 2px solid var(--console-bg);
   border-radius: 8px;
 }
