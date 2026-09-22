@@ -7,8 +7,6 @@
         <span v-show="!isCollapse" class="brand-name">CONSOLE//OS</span>
       </div>
 
-      <div v-show="!isCollapse" class="nav-label">NAVIGATION</div>
-
       <el-menu class="layout-menu" router :default-active="$route.path" :collapse="isCollapse">
         <!-- 递归渲染子路由 -->
         <template v-for="item in layoutRoutes" :key="item.path">
