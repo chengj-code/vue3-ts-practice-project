@@ -29,7 +29,8 @@ interface UserItem {
   createTime: string
 }
 
-const allList: UserItem[] = generateList(238)
+// 导出供 mock/dashboard.ts 复用：仪表盘统计与列表 CRUD 共用同一份数据源，数字真实联动
+export const allList: UserItem[] = generateList(238)
 
 interface ListQuery {
   page?: string

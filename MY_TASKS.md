@@ -81,7 +81,9 @@
 
 ## 二、进阶选做（完成核心后按需选择）
 
-- [ ] T12 仪表盘 + ECharts（折线/柱状/饼图 + resize）
+- [x] T12 仪表盘 + ECharts（折线/柱状/饼图 + resize）（2026-09-22 完成，TR-12.1/12.2/12.3 走查通过）
+  - 文件：`src/components/EChart.vue`（封装）、`src/types/echarts.ts`（ECOption 组合）、`main.ts`（按需注册）、`mock/dashboard.ts` + `api/modules/dashboard.ts`（数据层）、`DashboardView.vue`（组装）
+  - 心得/问题：① 按需注册漏 `LegendComponent` 不报错、图例静默消失（与 T5 图标漏 import 同脾气）；② resize 核心坑——侧边栏折叠只改容器宽度不触发 window.resize，必须 ResizeObserver 监听容器，卸载时先 disconnect 再 dispose；③ `setOption(option, { notMerge: true })` 防切换数据后旧 series 残留（代价是 legend 选中态重置，当前无此场景）；④ canvas 文字不继承 CSS 变量，option 里要用主题同族固定色值；⑤ 全量 `import * as echarts` 让 Dashboard chunk 打到 532KB，改 echarts/core 按需后降到 4.22KB；⑥ mock 复用 allList 导出做实时统计，仪表盘数字与列表 CRUD 真实联动；⑦ 遗留观察：main.ts 全局注册把 echarts/core 拉进主包（index 641KB），可选优化是把注册挪进 EChart.vue 归入 Dashboard chunk；⑧ v-permission 测试载体从 el-empty 换成语义化 ADMIN 徽标
 - [ ] T13 文件上传下载（进度条、预览、blob 下载）
 - [ ] T14 富文本编辑器（wangEditor + 图片上传）
 - [ ] T15 Excel 导入导出（xlsx）
