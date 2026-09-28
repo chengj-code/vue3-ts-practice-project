@@ -87,7 +87,9 @@
 - [ ] T13 文件上传下载（进度条、预览、blob 下载）
 - [ ] T14 富文本编辑器（wangEditor + 图片上传）
 - [ ] T15 Excel 导入导出（xlsx）
-- [ ] T16 WebSocket 实时通信（心跳、断线重连）
+- [x] T16 WebSocket 实时通信（心跳、断线重连）（2026-09-28 完成）
+  - 文件：`src/mock/websocket.ts`（MockWebSocket 假服务端）、`src/composables/useWebSocket.ts`（状态机 composable）、`src/views/message/MessageView.vue`（消息中心页）、`src/router/index.ts`（注册）
+  - 心得/问题：① 根目录 mock/ 在 tsconfig.node.json（Node 环境、无 DOM lib）——浏览器端 WS 模拟必须放 src/mock/，HTTP mock（跑 Node）与 WS 模拟（跑浏览器）不是一类东西；② 状态机核心设计：重连逻辑只写一份，pong 超时判定假死后统一走 socket.close() → onclose 单一出口（「发现死亡」与「处理死亡」分离）；③ manualClosed 标志区分主动/异常关闭，缺它则登出后后台无限重连；④ 心跳 = 发出 + 确认回来（pong 超时判假死），只发不等是向空气喊话；⑤ onopen 里 reconnectCount=0，计数衡量「连续失败」而非历史总数；⑥ 重连超限置 closed 交还给人决策（页面出重新连接按钮）；⑦ composable 内置 onBeforeUnmount(close) 页面级连接，全局化只需 messages 换 Pinia store、连接挂 App 级，composable 代码零改动。详见 jk-archive/sessions/2026-09-28_T16WebSocket实时通信.md
 - [ ] T17 高级交互（拖拽排序 sortablejs + 虚拟滚动）
 - [x] T18 主题切换（明暗 + 主题色，CSS 变量；2026-09-22 完成并走查，踩坑记录见下方补记与 jk-archive/sessions/2026-09-22_T18主题切换.md）
 - [ ] T19 国际化 i18n（vue-i18n，中英切换）

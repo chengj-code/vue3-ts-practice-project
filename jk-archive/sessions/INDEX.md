@@ -13,3 +13,4 @@
 | Task 20 最终验收 + useForm 校验门禁 P0 bug 修复 | 已完成 | vue3, typescript, composable, useForm, useModal, 表单校验, 走查, 验收, vite构建, element-plus | 2026-09-17 | [2026-09-17_task20验收与useForm校验门禁修复.md](./2026-09-17_task20验收与useForm校验门禁修复.md) |
 | T12 仪表盘 ECharts 数据可视化 | 已完成 | vue3, echarts, 数据可视化, 组件封装, ResizeObserver, 按需引入, mock, typescript | 2026-09-18 | [2026-09-18_T12仪表盘ECharts.md](./2026-09-18_T12仪表盘ECharts.md) |
 | T18 主题切换（明暗 + 品牌色） | 已完成 | vue3, css变量, 主题切换, element-plus, color-mix, 特异度, FOUC, pinia, typescript | 2026-09-22 | [2026-09-22_T18主题切换.md](./2026-09-22_T18主题切换.md) |
+| T16 WebSocket 实时通信（心跳、断线重连） | 已完成 | vue3, websocket, composable, 状态机, 心跳, 断线重连, mock, typescript | 2026-09-28 | [2026-09-28_T16WebSocket实时通信.md](./2026-09-28_T16WebSocket实时通信.md) |

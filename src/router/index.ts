@@ -37,6 +37,13 @@ const router = createRouter({
           component: () => import('@/views/User/UserListView.vue'),
           meta: { title: '用户列表', icon: 'User', roles: ['admin'] },
         },
+        {
+          path: 'message',
+          name: 'message',
+          component: () => import('@/views/message/MessageView.vue'),
+          // 无 roles 字段：不限角色，所有登录用户可见（T16）
+          meta: { title: '消息中心', icon: 'Bell' },
+        },
       ],
     },
   ],

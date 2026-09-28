@@ -12,3 +12,4 @@
 | Vue3 自定义指令封装（v-permission 模板） | vue3, 自定义指令, 权限, typescript, directive | 2026-09-17 | sessions/2026-09-17_v-permission按钮级权限指令.md | [vue3-自定义指令封装.md](./vue3-自定义指令封装.md) |
 | ECharts 按需注册与路由级分包（封装组件） | echarts, 按需引入, tree-shaking, 组件封装, ResizeObserver, 性能优化, vue3 | 2026-09-22 | sessions/2026-09-18_T12仪表盘ECharts.md | [echarts按需注册与路由分包.md](./echarts按需注册与路由分包.md) |
 | CSS 变量双主题体系（color-mix 派生 + FOUC + 特异度竞争） | css变量, 主题切换, element-plus, color-mix, 特异度, FOUC, 暗色模式 | 2026-09-22 | sessions/2026-09-22_T18主题切换.md | [CSS变量双主题-color-mix派生与特异度.md](./CSS变量双主题-color-mix派生与特异度.md) |
+| WebSocket composable 状态机封装（心跳/重连/单一出口） | vue3, composable, websocket, 状态机, 心跳, 断线重连 | 2026-09-28 | sessions/2026-09-28_T16WebSocket实时通信.md | [WebSocket-composable状态机封装.md](./WebSocket-composable状态机封装.md) |
